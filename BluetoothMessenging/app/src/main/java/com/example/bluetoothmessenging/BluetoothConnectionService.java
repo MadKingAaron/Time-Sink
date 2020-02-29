@@ -1,6 +1,8 @@
 package com.example.bluetoothmessenging;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
@@ -20,6 +22,11 @@ public class BluetoothConnectionService {
     Context context;
 
     private AcceptThread insecureAcceptThread;
+    private ConnectThread connectThread;
+    private BluetoothDevice mmDevice;
+    private UUID deviceUUID;
+
+    ProgressDialog progressDialog;
 
     public BluetoothConnectionService(Context context)
     {
@@ -102,7 +109,125 @@ public class BluetoothConnectionService {
         }
     }
 
+    /**
+     * This thread runs while attempting to make an outgoing connection with a device. It runs straight through;
+     * the connection either succeeds or fails.
+     */
+
+    private class ConnectThread extends Thread {
+        private BluetoothSocket socket;
+
+        private ConnectThread(BluetoothDevice device, UUID uuid)
+        {
+            Log.d(TAG, "ConnectThread: started.");
+            mmDevice = device;
+            deviceUUID = uuid;
+        }
+
+        public void run()
+        {
+            BluetoothSocket tmp = null;
+            Log.i(TAG, "RUN: connectThread");
+
+            //Get a BluetoothSocket for a connection with the BluetoothDevice
+            try {
+                Log.d(TAG, "ConnectThread: Trying to create InsecureRfcommSocket using UUID "
+                        +UUID_INSECURE);
+                tmp = mmDevice.createRfcommSocketToServiceRecord(deviceUUID);
+
+            } catch (IOException e) {
+                Log.d(TAG, "ConnectThread: Could not create InsecureRfcommSocket "+ e.getMessage());
+            }
+
+            socket = tmp;
+
+            //Cancel discovery when connection made
+            //Disco memory intesive, will slow down connection
+            bluetoothAdapter.cancelDiscovery();
 
 
+            //Make connection to BluetoothSocket
+
+            //This is a blocking call and will only return on a successful connection
+            //or exception
+            try {
+
+                Log.d(TAG, "run: connectThread: Attempting to connect");
+
+                socket.connect();
+
+                Log.d(TAG, "run: connectThread: Connection Successful");
+            }catch (IOException e)
+            {
+                //Close socket
+
+                try
+                {
+                    socket.close();
+                    Log.d(TAG, "run: connectThread: Closed Socket");
+                }catch (IOException ioe)
+                {
+                    Log.e(TAG, "run: connectThread: Unable to close connection in socket "+ ioe.getMessage());
+                }
+
+                Log.d(TAG, "run: connectThread: Could not connect to UUID: "+UUID_INSECURE);
+            }
+
+            //Talk about in part 3
+            connected(socket, mmDevice);
+        }
+
+        public void cancel(){
+            try {
+                Log.d(TAG, "cancel: CLosing Client Socket.");
+                socket.close();
+            }catch (IOException e)
+            {
+                Log.e(TAG, "cancel: close() of socket in connectThread failed "+ e.getMessage());
+            }
+        }
+
+    }
+
+    /**
+     * Start the messaging service. Specifically start AcceptThread to begin a session in listening (server) mode.
+     * Called by the Activity onResume()
+     */
+
+    public synchronized void start()
+    {
+        Log.d(TAG, "start");
+
+        //Cancel any thread to make a connection
+        if(this.connectThread != null)
+        {
+            this.connectThread.cancel();
+            this.connectThread = null;
+        }
+
+        if(this.insecureAcceptThread == null)
+        {
+            this.insecureAcceptThread = new AcceptThread();
+            this.insecureAcceptThread.start();
+        }
+    }
+
+    /**
+     * AcceptThread starts and sits waiting for a connection.
+     * Then ConnectThread starts and attempts to make a connection with the other device's AcceptThread.
+     */
+    public synchronized void startClient(BluetoothDevice device, UUID uuid)
+    {
+        Log.d(TAG, "startClient");
+
+        //initprogress dialog box
+        this.progressDialog = ProgressDialog.show(this.context, "Connecting Bluetooth"
+            ,"Please Wait...", true);
+
+        //Create connectThread
+        this.connectThread = new ConnectThread(device, uuid);
+        this.connectThread.start();
+
+    }
 
 }
