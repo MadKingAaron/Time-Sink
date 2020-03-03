@@ -7,13 +7,19 @@ import android.os.Handler;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
 
     final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
 
     // ADD ALL OBJECTS HERE
+
     private void create()
     {
         // TIMER AND BUTTON
@@ -31,6 +37,8 @@ public class MainActivity extends AppCompatActivity
     final int delay = 10;//getDelay(); // Delay in milliseconds
     ActionableList actionableList;
     Actionable[] actionableObjects;
+    SensorManager sensorManager;
+    Gyro gyroSensor=new Gyro();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,6 +53,24 @@ public class MainActivity extends AppCompatActivity
         create();
 
         this.actionableObjects = this.actionableList.toArray();
+
+        sensorManager=(SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        gyroSensor.gyroscope=sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        sensorManager.registerListener(MainActivity.this,gyroSensor.gyroscope,SensorManager.SENSOR_DELAY_NORMAL);
+
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event)
+    {
+        gyroSensor.getXAxis(event);
+        gyroSensor.getYAxis(event);
+        gyroSensor.getZAxis(event);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i)
+    {
+
     }
 
     // Runs once per frame when activity is active
