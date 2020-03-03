@@ -1,5 +1,5 @@
 # Time-Sink
-Jonathan
+Jonathan Gomez
 Jack Koscheka
 Aaron Jimenez
 Nick Caballero
