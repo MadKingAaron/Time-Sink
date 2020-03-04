@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.actionableObjects = this.actionableList.toArray();
 
-        sensorManager=(SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        gyroSensor.setSensorManager();
+        sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         sensorManager.registerListener(MainActivity.this,gyroSensor.gyroscope,SensorManager.SENSOR_DELAY_NORMAL);
 
     }
