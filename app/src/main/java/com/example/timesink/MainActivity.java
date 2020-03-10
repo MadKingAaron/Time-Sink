@@ -2,21 +2,37 @@ package com.example.timesink;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
 
+    private static final String TAG = "MainActivity";//Use for logs involving MainActivity
     final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
+    final Handler handler = new Handler();
+    final int delay = getDelay(); // Delay in milliseconds
+    ActionableList actionableList;
+    Actionable[] actionableObjects;
+
+    SensorManager sensorManager;
+    private Sensor accelerometer;
+
+    private float[] axisValues;
+    private float accelValue;
+    private float prevAccelValue;
+    private float currAccelValue;
+
+    private TextView antiCheatText;
 
     // ADD ALL OBJECTS HERE
 
@@ -29,16 +45,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 (Button) findViewById(R.id.theButton)));
     }
 
+    private void createSensorManager() //creates sensor manager for gyro
+    {
+        //Sensor stuff
+        sensorManager=(SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer=sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accelValue=0.00f;
+        prevAccelValue = SensorManager.GRAVITY_EARTH;
+        currAccelValue = SensorManager.GRAVITY_EARTH;
+        antiCheatText=findViewById(R.id.antiCheatText);
+
+    }
+
     /*                                          *\
         DON'T CHANGE ANYTHING BELOW THIS POINT
     \*                                          */
 
-    final Handler handler = new Handler();
-    final int delay = 10;//getDelay(); // Delay in milliseconds
-    ActionableList actionableList;
-    Actionable[] actionableObjects;
-    SensorManager sensorManager;
-    Gyro gyroSensor=new Gyro();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -51,20 +74,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.actionableList = new ActionableList();
 
         create();
+        createSensorManager();
+        sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_UI);
 
         this.actionableObjects = this.actionableList.toArray();
-
-        sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        sensorManager.registerListener(MainActivity.this,gyroSensor.gyroscope,SensorManager.SENSOR_DELAY_NORMAL);
-
     }
+
     @Override
     public void onSensorChanged(SensorEvent event)
     {
-        gyroSensor.getXAxis(event);
-        gyroSensor.getYAxis(event);
-        gyroSensor.getZAxis(event);
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+        {
+            axisValues = event.values.clone();
+            float xAxis = axisValues[0];
+            float yAxis = axisValues[1];
+            float zAxis = axisValues[2];
+            prevAccelValue = currAccelValue;
+            currAccelValue = (float)Math.sqrt((xAxis * xAxis) + (yAxis * yAxis) + (zAxis * zAxis));
+            accelValue = accelValue * 0.9f + (currAccelValue - prevAccelValue);
+            String TAG = "onSensorChanged";
+            Log.d(TAG, "accelValue: " + accelValue);
+            if(accelValue > 0.001 || accelValue < -0.001)
+            {
+                this.antiCheatText.setText("");
+            }
+            else
+            {
+                this.antiCheatText.setText("Are you still there?");
+            }
+        }
     }
 
     @Override
@@ -94,6 +132,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 handler.postDelayed(this, delay);
             }
         }, delay);
+
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        //sensorManager.registerListener(MainActivity.this,gyroSensor.gyroscope,SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     // Runs upon pausing of activity
@@ -112,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
 
         pause();
+        sensorManager.unregisterListener(this);
     }
 
     private int getDelay()

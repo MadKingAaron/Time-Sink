@@ -1,9 +1,8 @@
 package com.example.timesink;
-import android.content.Context;
+
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+
 
 public class Gyro
 {
@@ -15,12 +14,7 @@ public class Gyro
 
     boolean isMoving;
 
-    SensorManager sensorManager;
 
-    public void setSensorManager()
-    {
-        gyroscope=sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-    }
 
     public float getXAxis(SensorEvent event)
     {
