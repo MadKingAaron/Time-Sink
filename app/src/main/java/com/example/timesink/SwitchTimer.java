@@ -2,15 +2,17 @@ package com.example.timesink;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SwitchTimer extends Timer
 {
-    Context currentActivity;
-    Class nextActivity;
-    Delay delay;
+    private Context currentActivity;
+    private Class nextActivity;
+    private Delay delay;
+    private Bundle bundle;
 
     public SwitchTimer(Context currentActivity, Class nextActivity, TextView timerText, ImageView buttonImage, Button theButton)
     {
@@ -22,9 +24,20 @@ public class SwitchTimer extends Timer
         this.delay = new BasicDelay();
     }
 
-    public void addDelay(Delay delay) { this.delay = delay; }
+    public void setNextActivity(Class nextActivity)
+    {
+        this.nextActivity = nextActivity;
+    }
 
-    public void setNextActivity(Class nextActivity) { this.nextActivity = nextActivity; }
+    public void addDelay(Delay delay)
+    {
+        this.delay = delay;
+    }
+
+    public void addBundle(Bundle bundle)
+    {
+        this.bundle = bundle;
+    }
 
     @Override
     protected void stopTimer()
@@ -33,12 +46,21 @@ public class SwitchTimer extends Timer
 
         this.delay.delay();
 
+        if(this.bundle == null)
+            this.bundle = new Bundle();
+
+        this.bundle.putSerializable("time", super.getTotalTime());
+
         switchToNextActivity();
     }
 
     private void switchToNextActivity()
     {
         Intent intent = new Intent(this.currentActivity, nextActivity);
+
+        if (this.bundle != null)
+            intent.putExtras(bundle);
+
         this.currentActivity.startActivity(intent);
     }
 }
