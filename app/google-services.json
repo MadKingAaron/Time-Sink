@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "13058844757",
+    "firebase_url": "https://time-sink-9da70.firebaseio.com",
+    "project_id": "time-sink-9da70",
+    "storage_bucket": "time-sink-9da70.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13058844757:android:62075728ae13cec66d0cdc",
+        "android_client_info": {
+          "package_name": "com.example.timesink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "13058844757-kdv18nuh9j2ngka6h3qnfadnh1q62mr1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.timesink",
+            "certificate_hash": "1f802ea871efc8b9d413f812f819ac119195f0a0"
+          }
+        },
+        {
+          "client_id": "13058844757-2bbisg7idgorudv7t0lb458tqchhri88.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7AwAcb-HpJCOmuUR3n8kkVAPMSiBJarQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "13058844757-2bbisg7idgorudv7t0lb458tqchhri88.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

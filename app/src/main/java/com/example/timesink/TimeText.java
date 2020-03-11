@@ -126,6 +126,10 @@ public class TimeText
 
         timeBuilder.append(seconds);
         timeBuilder.append("s");
+        if (milliseconds < 100)
+            timeBuilder.append("0");
+        if (milliseconds < 10)
+            timeBuilder.append("0");
         timeBuilder.append(milliseconds);
         timeBuilder.append("ms");
 
