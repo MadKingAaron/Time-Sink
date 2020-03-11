@@ -9,17 +9,17 @@ import android.widget.TextView;
 
 public class Timer implements Actionable
 {
-    long startTime;
-    boolean timerRunning;
-    long totalTime;
+    private long startTime;
+    private boolean timerRunning;
+    private long totalTime;
 
-    TextView timerText;
-    ImageView buttonImage;
-    Button theButton;
+    private TimeText timeText;
+    private ImageView buttonImage;
+    private Button theButton;
 
     public Timer(TextView timerText, ImageView buttonImage, Button theButton)
     {
-        this.timerText = timerText;
+        this.timeText = new TimeText(timerText, (this.totalTime = 0));
         this.buttonImage = buttonImage;
         this.theButton = theButton;
 
@@ -29,11 +29,11 @@ public class Timer implements Actionable
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
                 // start
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
                     startTimer();
 
                     // stop
-                else if(motionEvent.getAction() == MotionEvent.ACTION_UP)
+                else if (motionEvent.getAction() == MotionEvent.ACTION_UP)
                     stopTimer();
 
                 return true;
@@ -52,13 +52,21 @@ public class Timer implements Actionable
     @Override
     public void pause()
     {
-        stopTimer();
+        if (this.timerRunning)
+            stopTimer();
+    }
+
+    public boolean isRunning()
+    {
+        return this.timerRunning;
     }
 
     private long getCurrentTime()
-    { return SystemClock.elapsedRealtime(); }
+    {
+        return SystemClock.elapsedRealtime();
+    }
 
-    private void startTimer()
+    protected void startTimer()
     {
         resetTimer();
         this.startTime = getCurrentTime();
@@ -66,80 +74,32 @@ public class Timer implements Actionable
         this.buttonImage.setImageResource(R.drawable.button_pressed_background);
     }
 
-    private void updateTimer()
+    protected void updateTimer()
     {
         // sets the time to the current time in milliseconds
-        if(this.timerRunning)
+        if (this.timerRunning)
             setTimer(getCurrentTime() - this.startTime);
     }
 
-    private void stopTimer()
+    protected void stopTimer()
     {
         this.totalTime = getCurrentTime() - this.startTime;
         this.timerRunning = false;
         this.buttonImage.setImageResource(R.drawable.button_unpressed_background);
     }
 
-    private void setTimer(long millis)
+    protected long getTotalTime()
     {
-        int seconds = (int) (millis / 1000);
-        int milliseconds = (int) (millis % 1000);
-
-        int minutes = seconds / 60;
-        seconds %= 60;
-
-        int hours = minutes / 60;
-        minutes %= 60;
-
-        int days = hours / 24;
-        hours %= 24;
-
-        String timeString = formatTime(days, hours, minutes, seconds, milliseconds);
-
-        this.timerText.setText(timeString);
+        return this.totalTime;
     }
 
-    private String formatTime(int days, int hours, int minutes, int seconds, int milliseconds)
+    private void setTimer(long millis)
     {
-        StringBuilder timeBuilder = new StringBuilder();
-
-        if(minutes > 0)
-        {
-            if(hours > 0)
-            {
-                if(days > 0)
-                {
-                    timeBuilder.append(days);
-                    timeBuilder.append(":");
-                    if(hours < 10)
-                        timeBuilder.append("0");
-                }
-
-                timeBuilder.append(hours);
-                timeBuilder.append(":");
-                if(minutes < 10)
-                    timeBuilder.append("0");
-            }
-
-            timeBuilder.append(minutes);
-            timeBuilder.append(":");
-            if(seconds < 10)
-                timeBuilder.append("0");
-        }
-
-        timeBuilder.append(seconds);
-        timeBuilder.append(".");
-
-        int hundredths = (int) (milliseconds / 10);
-        if(hundredths < 10)
-            timeBuilder.append("0");
-        timeBuilder.append(hundredths);
-
-        return timeBuilder.toString();
+        this.timeText.updateTime(millis);
     }
 
     private void resetTimer()
     {
-        this.timerText.setText("0.00");
+        setTimer(this.totalTime = 0);
     }
 }
