@@ -7,13 +7,21 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/button_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/button_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AntiCheatActivity"></activity>
+<<<<<<< HEAD
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="nosensor">
+=======
+        <activity android:name=".OnlineActivity"></activity>
+        <activity android:name=".LeaderboardActivity" />
         <activity android:name=".MainActivity">
+>>>>>>> 3e2b3a64d7b7f9155ac4e407539f7f20aa61e15d
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

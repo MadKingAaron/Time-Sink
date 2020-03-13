@@ -16,45 +16,50 @@ import android.util.Log;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
-
-    private static final String TAG = "MainActivity";//Use for logs involving MainActivity
     final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
     final Handler handler = new Handler();
     final int delay = getDelay(); // Delay in milliseconds
     ActionableList actionableList;
     Actionable[] actionableObjects;
 
+    //Sensor stuff
     SensorManager sensorManager;
     private Sensor accelerometer;
 
-    private float[] axisValues;
+    //Movement calculation values
     private float accelValue;
     private float prevAccelValue;
     private float currAccelValue;
 
+    //Message displayed when movement isn't detected
     private TextView antiCheatText;
+
+    //Counts number of iterations the phone is lying still
+    private int waitTime;
 
     // ADD ALL OBJECTS HERE
 
     private void create()
     {
         // TIMER AND BUTTON
-        this.actionableList.add(new Timer(
+        SwitchTimer timer = new SwitchTimer(this, LeaderboardActivity.class,
                 (TextView) findViewById(R.id.timer),
                 (ImageView) findViewById(R.id.buttonImage),
-                (Button) findViewById(R.id.theButton)));
+                (Button) findViewById(R.id.theButton));
+
+        this.actionableList.add(timer);
     }
 
-    private void createSensorManager() //creates sensor manager for gyro
+
+    private void createSensorManager() //creates sensor manager
     {
         //Sensor stuff
-        sensorManager=(SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer=sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        accelValue=0.00f;
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accelValue = 0.00f;
         prevAccelValue = SensorManager.GRAVITY_EARTH;
         currAccelValue = SensorManager.GRAVITY_EARTH;
-        antiCheatText=findViewById(R.id.antiCheatText);
-
+        antiCheatText = findViewById(R.id.antiCheatText);
     }
 
     /*                                          *\
@@ -83,24 +88,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event)
     {
-        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
         {
-            axisValues = event.values.clone();
-            float xAxis = axisValues[0];
-            float yAxis = axisValues[1];
-            float zAxis = axisValues[2];
+            float[] axisValues = event.values.clone();
             prevAccelValue = currAccelValue;
-            currAccelValue = (float)Math.sqrt((xAxis * xAxis) + (yAxis * yAxis) + (zAxis * zAxis));
-            accelValue = accelValue * 0.9f + (currAccelValue - prevAccelValue);
-            String TAG = "onSensorChanged";
-            Log.d(TAG, "accelValue: " + accelValue);
-            if(accelValue > 0.001 || accelValue < -0.001)
+            Accelerometer accelMoveCheck = new Accelerometer(axisValues[0], axisValues[1], axisValues[2], prevAccelValue, currAccelValue, accelValue);
+            accelValue = accelMoveCheck.calculateAccelValue();
+            if (accelValue > 0.5)
             {
+                this.waitTime = 0;
                 this.antiCheatText.setText("");
-            }
-            else
+            } else
             {
-                this.antiCheatText.setText("Are you still there?");
+                this.waitTime++;
+                if (waitTime > 300)
+                {
+                    this.antiCheatText.setText("Are you still there?");
+                    Log.d("false", "accelValue: " + accelValue);
+                }
             }
         }
     }
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         for (int i = 0; i < this.actionableObjects.length; i++)
         {
-            if(this.actionableObjects[i] != null)
+            if (this.actionableObjects[i] != null)
                 this.actionableObjects[i].update();
         }
     }
@@ -126,8 +131,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         super.onResume();
 
-        handler.postDelayed(new Runnable() {
-            public void run() {
+        handler.postDelayed(new Runnable()
+        {
+            public void run()
+            {
                 update();
                 handler.postDelayed(this, delay);
             }
@@ -142,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         for (int i = 0; i < this.actionableObjects.length; i++)
         {
-            if(this.actionableObjects[i] != null)
+            if (this.actionableObjects[i] != null)
                 this.actionableObjects[i].pause();
         }
     }
@@ -160,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         float fps = (this.FRAMES_PER_SECOND > 1000) ? 1000 : this.FRAMES_PER_SECOND;
 
-        if(fps <= 0)
+        if (fps <= 0)
             fps = Float.MIN_NORMAL;
 
         int delay = (int) (1000 / fps);
