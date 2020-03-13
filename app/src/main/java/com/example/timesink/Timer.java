@@ -23,11 +23,9 @@ public class Timer implements Actionable
         this.buttonImage = buttonImage;
         this.theButton = theButton;
 
-        this.theButton.setOnTouchListener(new View.OnTouchListener()
-        {
+        this.theButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent)
-            {
+            public boolean onTouch(View view, MotionEvent motionEvent) {
                 // start
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
                     startTimer();
@@ -44,8 +42,7 @@ public class Timer implements Actionable
     }
 
     @Override
-    public void update()
-    {
+    public void update() {
         updateTimer();
     }
 
