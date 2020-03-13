@@ -17,11 +17,7 @@ import android.util.Log;
 public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
     final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
-    final Handler handler = new Handler();
-    final int delay = getDelay(); // Delay in milliseconds
-    ActionableList actionableList;
-    Actionable[] actionableObjects;
-
+    
     //Sensor stuff
     SensorManager sensorManager;
     private Sensor accelerometer;
@@ -61,10 +57,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         antiCheatText = findViewById(R.id.antiCheatText);
     }
 
-    /*                                          *\
-        DON'T CHANGE ANYTHING BELOW THIS POINT
-    \*                                          */
+    /*                                                      *\
+        SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
+    \*                                                      */
 
+    final Handler handler = new Handler();
+    final int delay = getDelay(); // Delay in milliseconds
+    ActionableList actionableList;
+    Actionable[] actionableObjects;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

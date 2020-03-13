@@ -71,7 +71,6 @@ public class Timer implements Actionable
         this.buttonImage.setImageResource(R.drawable.button_pressed_background);
     }
 
-
     protected void updateTimer()
     {
         // sets the time to the current time in milliseconds
