@@ -49,8 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.actionableList.add(timer);
     }
-
-
+    
     private void createSensorManager() //creates sensor manager
     {
         //Sensor stuff
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /*                                          *\
         DON'T CHANGE ANYTHING BELOW THIS POINT
     \*                                          */
-
 
 
     @Override
