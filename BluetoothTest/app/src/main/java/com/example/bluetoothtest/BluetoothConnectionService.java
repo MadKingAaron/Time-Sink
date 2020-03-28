@@ -79,27 +79,32 @@ public class BluetoothConnectionService {
 
 
 
-            try {
-                //This a blocking call and will only return on a
-                //successful connection or an exception
-                Log.d(TAG, "run: RFCOM server socket start...");
-
-                socket = this.serverSocket.accept();
-
-                Log.d(TAG, "run: RFCOM server socket accepted connection");
-            } catch (IOException e) {
-                //e.printStackTrace();
-                Log.d(TAG, "AccepThread: IOException: "+e.getMessage());
-            }
-
-
-            if(socket != null)
+            while(true)
             {
-                connected(socket, mmDevice);
+                try {
+                    //This a blocking call and will only return on a
+                    //successful connection or an exception
+                    Log.d(TAG, "run: RFCOM server socket start...");
+
+                    socket = this.serverSocket.accept();
+
+                    Log.d(TAG, "run: RFCOM server socket accepted connection");
+                } catch (IOException e) {
+                    //e.printStackTrace();
+                    Log.d(TAG, "AcceptThread: IOException: "+e.getMessage());
+                }
+
+
+                if(socket != null)
+                {
+                    connected(socket, mmDevice);
+
+                    break;
+                }
+
             }
 
-
-            Log.d(TAG, "END Accept thread");
+            Log.i(TAG, "END Accept thread");
         }
 
 
@@ -233,6 +238,8 @@ public class BluetoothConnectionService {
 
             this.outputStream = tempOut;
             this.inputStream = tempIn;
+
+            Log.d(TAG, "ConnectedThread: Construct: Initialized");
         }
 
         public void run()
@@ -246,7 +253,7 @@ public class BluetoothConnectionService {
             {
                 //Read from the InputStream
                 try {
-                    bytes = this.inputStream.read(buffer);
+                    bytes = this.bluetoothSocket.getInputStream().read(buffer);
                     String incomingMessage = new String(buffer, 0, bytes);
 
                     Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
@@ -268,12 +275,16 @@ public class BluetoothConnectionService {
         //Call this from the main activity to send data to the remote device
         public void write(byte[] bytes)
         {
+
             String text = new String(bytes, Charset.defaultCharset());
             Log.d(TAG, "ConnectedThread: write: Writing to outputstream: "+text);
 
+            bytes = "Hello".getBytes();
+
+            Log.d(TAG, "ConnectedThread: write: Byte Arr Length "+ bytes.length);
             try
             {
-                this.outputStream.write(bytes);
+                this.bluetoothSocket.getOutputStream().write(bytes);
                 Log.d(TAG, "ConnectedThread: write: message sent");
             } catch(IOException e)
             {
@@ -326,7 +337,7 @@ public class BluetoothConnectionService {
      */
     public synchronized void startClient(BluetoothDevice device, UUID uuid)
     {
-        Log.d(TAG, "startClient");
+        Log.d(TAG, "startClient: Started");
 
         //initprogress dialog box
         this.progressDialog = ProgressDialog.show(this.context, "Connecting Bluetooth"

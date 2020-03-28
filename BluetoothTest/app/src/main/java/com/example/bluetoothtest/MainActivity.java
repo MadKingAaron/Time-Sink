@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.d(TAG, "onRecieve: " + device.getName() + ": " + device.getAddress());
                 mDeviceListAdapter = new DeviceListAdapter(context, R.layout.device_adapter_view, mBTDevices);
                 lvNewDevices.setAdapter(mDeviceListAdapter);
+                lvNewDevices.setAdapter(mDeviceListAdapter);
 
             }
         }
@@ -271,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btnStartConnection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "onClick: starting connection");
                 startConnection();
             }
         });
@@ -359,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "btnEnableDiable_Discoverable: Making device discoverable for 300 seconds");
 
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 20);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
 
         IntentFilter intentFilter = new IntentFilter(mBluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
