@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dist="http://schemas.android.com/apk/distribution"
-    package="com.example.timesink">
+    package="com.example.projecttimesink">
 
     <dist:module dist:instant="true" />
 
@@ -12,7 +12,9 @@
         android:roundIcon="@mipmap/button_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".OnlineActivity"></activity>
+        <activity android:name=".LeaderboardPopUp"></activity>
+        <activity android:name=".Online2" />
+        <activity android:name=".OnlineActivity" />
         <activity android:name=".LeaderboardActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
