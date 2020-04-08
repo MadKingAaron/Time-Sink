@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 this.waitTime++;
                 if (waitTime > 300)
                 {
-                    this.antiCheatText.setText("Are you still there?");
+                    this.antiCheatText.setText("Please make sure you hold you are holding your device in your hand.");
                     Log.d("false", "accelValue: " + accelValue);
                 }
             }
