@@ -52,7 +52,7 @@ public class LeaderboardActivity extends AppCompatActivity
 //        this.database.readUser("k1");
 
 
-        this.recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        this.recyclerView = findViewById(R.id.recyclerView);
         this.database.readUsers(new Database.DataStatus()
         {
             @Override

@@ -24,7 +24,7 @@ public class Online2 extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online2);
 
-        this.firebaseButton = (Button) findViewById(R.id.firebaseButton);
+        this.firebaseButton = findViewById(R.id.firebaseButton);
 
         // gets root of firebase database
         this.mDatabase = FirebaseDatabase.getInstance().getReference();

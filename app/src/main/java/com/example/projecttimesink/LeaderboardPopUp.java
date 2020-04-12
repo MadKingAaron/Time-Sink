@@ -41,11 +41,11 @@ public class LeaderboardPopUp extends AppCompatActivity
             this.time = 0;
         }
 
-        this.errorText = (TextView) findViewById(R.id.errorText);
+        this.errorText = findViewById(R.id.errorText);
 
         this.timeText = new TimeText((TextView) findViewById(R.id.time), this.time, 1);
 
-        this.nameInput = (EditText) findViewById(R.id.nameText);
+        this.nameInput = findViewById(R.id.nameText);
 
         this.switchButton = new SwitchButton(this, LeaderboardActivity.class, (Button) findViewById(R.id.enterButton));
 
