@@ -1,14 +1,22 @@
 package com.example.projecttimesink;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +26,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -44,9 +53,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //Counts number of iterations the phone is lying still
     private int waitTime;
 
+
+
+
+    ///Bluetooth////////////////////////////////////////////////////
     //TAG for logs
     private final String TAG = "MainActivity";
 
+    Button bluetoothButton;
+
+    private boolean bluetoothDevicePaired;
 
     private BluetoothAdapter mBluetoothAdapter;
 
@@ -177,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    //TODO finish broadcast reciever
     private BroadcastReceiver messageReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -188,6 +205,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //messages.append(text);
         }
     };
+
+    private void createBluetooth()
+    {
+        //Create broadCast Reciever for passing message to mainActivity
+        //LocalBroadcastManager.getInstance(this).registerReceiver(this.messageReciever, new IntentFilter("incomingMessage"));
+
+        //Create arraylist of all discoverable devices
+        this.mBTDevices = new ArrayList<>();
+
+        //Broadcasts when bond state changes (ie: pairing)
+        IntentFilter pairingFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(mBroadcastReciever4, pairingFilter);
+
+        this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        this.bluetoothButton = (Button) findViewById(R.id.bluetoothButton);
+
+        this.bluetoothDevicePaired = false;
+
+        this.bluetoothButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                BTHandler(view);
+            }
+        });
+
+
+    }
 
     private void create()
     {
@@ -230,6 +276,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_UI);
 
         this.actionableObjects = this.actionableList.toArray();
+
+
+        createBluetooth();
     }
 
     @Override
@@ -320,5 +369,240 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int delay = (int) (1000 / fps);
 
         return delay;
+    }
+
+
+
+    ////////////////////Bluetooth Methods///////////////////////////////////////////////
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void BTHandler(View view)
+    {
+        Log.d(TAG, "Starting Bluetooth handler");
+
+        if(!bluetoothDevicePaired)
+        {
+            try {
+                this.enableBT();
+
+                this.enableDisable_Discoverable(view);
+
+                this.discoverDevices(view);
+
+
+            }catch(NoBluetoothAdapterException nbae)
+            {
+                Log.d(TAG, nbae.getMessage());
+                //TODO Add message alert
+            }
+        }
+        else //Start connection
+        {
+            Log.d(TAG, "onClick: starting connection");
+            startConnection();
+        }
+    }
+
+    //create method for starting connection
+    //*** TODO remember the connection will fail and app will crash if you haven't pair first
+    //*** Take this into account when using
+    public void startConnection() {
+        startBTConnection(mBTDevice, UUID_INSECURE);
+    }
+
+    //Start message service
+    public void startBTConnection(BluetoothDevice device, UUID uuid) {
+        Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection");
+
+        this.mBluetoothConnection.startClient(device, uuid);
+
+
+    }
+
+    public void enableBT() throws NoBluetoothAdapterException {
+        if (mBluetoothAdapter == null) {
+            Log.d(TAG, "enableDiableBT: DEVICE DOES NOT HAVE ONBOARD BLUETOOTH ADAPTER");
+            throw new NoBluetoothAdapterException("DEVICE DOES NOT HAVE ONBOARD BLUETOOTH ADAPTER");
+        }
+
+        else if (!mBluetoothAdapter.isEnabled()) {
+            Log.d(TAG, "enableDisableBT: enabling BT");
+            Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(enableBTIntent);
+
+            //Intent filter
+            IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+            registerReceiver(mBroadcastReciever1, BTIntent);
+        }
+    }
+
+
+    public void enableDisable_Discoverable(View view) {
+
+        Log.d(TAG, "btnEnableDiable_Discoverable: Making device discoverable for 300 seconds");
+
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
+
+        IntentFilter intentFilter = new IntentFilter(mBluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+
+        registerReceiver(mBroadcastReciever2, intentFilter);
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void discoverDevices(View view) {
+        Log.d(TAG, "btnDisocver: Looking for unpaired devices");
+
+        if (mBluetoothAdapter.isDiscovering()) {//Restart discovering
+            mBluetoothAdapter.cancelDiscovery();
+            Log.d(TAG, "btnDiscover: Canceling Discovery.");
+
+            //For devices running Lollipop or greater
+            checkBTPermissions();
+
+            mBluetoothAdapter.startDiscovery();
+            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(mBroadcastReciever3, discoverDevicesIntent);
+        }
+        if (!mBluetoothAdapter.isDiscovering()) {
+            //check BT permissions in manifest
+            checkBTPermissions();
+
+            mBluetoothAdapter.startDiscovery();
+            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(mBroadcastReciever3, discoverDevicesIntent);
+        }
+
+        final ProgressDialog bluetoothDeviceSearchProgress = this.initalizeBluetoothDeviceSearchProgress();
+        //Handler to delay by 5 seconds
+        Handler handler=new Handler();
+        Runnable r=new Runnable() {
+            public void run() {
+                //what ever you do here will be done after 5 seconds delay.
+                bluetoothDeviceSearchProgress.dismiss();
+                createBTDeviceListDialog();
+            }
+        };
+        handler.postDelayed(r, 10000);
+
+
+
+    }
+
+    private ProgressDialog initalizeBluetoothDeviceSearchProgress()
+    {
+        return this.initializeProgressDialog(this, "Searching for BT Devices", "Please Wait...");
+    }
+
+    private ProgressDialog initializeProgressDialog(Context context, String title, String message)
+    {
+        return ProgressDialog.show(context, title, message, true);
+    }
+
+    private void createBTDeviceListDialog()
+    {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Device to Pair to");
+
+        // add a list
+        String[] deviceArray = adapterListToStringArray(mBTDevices);
+        //animals = (String[])stringArrayList.toArray();
+
+        builder.setItems(deviceArray, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setPairedBTDeviceAndChangeBTButton(which);
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    //Only execute on Android Lollipop or above
+    //Required to enable bluetooth on those devices
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void checkBTPermissions() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
+            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
+
+            if (permissionCheck != 0) {
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001); //Any number
+            }
+        } else {
+            Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
+        }
+    }
+
+    private String[] adapterListToStringArray(ArrayList<BluetoothDevice> devList)
+    {
+        String[] deviceStringArray = new String[devList.size()];
+        for(int i = 0; i < deviceStringArray.length; ++i)
+        {
+            deviceStringArray[i] = ("Name: "+devList.get(i).getName() + "\nAddress: "+devList.get(i).getAddress());
+        }
+
+        return deviceStringArray;
+    }
+
+
+
+    private void setPairedBTDeviceAndChangeBTButton(int deviceIndex)
+    {
+        changeBTButton();
+
+        setPairedBTDevice(deviceIndex);
+    }
+
+    private void changeBTButton()
+    {
+        bluetoothDevicePaired = true;
+
+        this.bluetoothButton.setText("Start Connection");
+    }
+
+    private void setPairedBTDevice(int deviceIndex)
+    {
+        //first cancel discovery because it's very memory intensive
+        mBluetoothAdapter.cancelDiscovery();
+
+        Log.d(TAG, "onItemClick: You clicked on a device!");
+
+        String deviceName = mBTDevices.get(deviceIndex).getName();
+        String deviceAddress = mBTDevices.get(deviceIndex).getName();
+
+        Log.d(TAG, "onItemClick: Clicked on Device Name: " + deviceName + " Address: " + deviceAddress);
+
+        //create the bond
+        //NOTE: Requires API 17+ (Jellybean MR2 ?)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Log.d(TAG, "Trying to pair with " + deviceName);
+            mBTDevices.get(deviceIndex).createBond();
+
+
+            //Start connection service
+            mBTDevice = mBTDevices.get(deviceIndex);
+            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this);
+        }
+    }
+
+
+    //TODO Use when emotes are implemented to send via bluetooth
+    public void sendEmoteViaBluetooth(EmoteInterface emote) throws EmoteNotSentException{
+
+        try {
+            //Convert to byte array
+            byte[] toSend= SerializeServiceClass.serializeObject(emote);
+
+            this.mBluetoothConnection.write(toSend);
+        }catch (IOException ioe)
+        {
+            throw new EmoteNotSentException("Emote Unable to send ---- "+ioe.getMessage());
+        }
     }
 }
