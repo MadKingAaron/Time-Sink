@@ -88,13 +88,14 @@ public class Timer implements Actionable
         this.buttonImage.setImageResource(R.drawable.button_unpressed_foreground);
     }
 
-    protected long getTotalTime()
+    public long getTotalTime()
     {
         return this.totalTime;
     }
 
     private void setTimer(long millis)
     {
+        this.totalTime=millis;
         this.timeText.updateTime(millis);
     }
 

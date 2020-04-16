@@ -3,9 +3,9 @@ package com.example.projecttimesink;
 public interface Actionable
 {
     // Method that runs once per frame when activity is active
-    public void update();
+    void update();
 
     // Method that runs upon pause of activity
-    public void pause();
+    void pause();
 
 }

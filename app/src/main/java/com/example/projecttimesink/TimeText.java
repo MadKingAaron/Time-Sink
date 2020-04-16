@@ -88,7 +88,7 @@ public class TimeText
         timeBuilder.append(seconds);
         timeBuilder.append(".");
 
-        int hundredths = (int) (milliseconds / 10);
+        int hundredths = milliseconds / 10;
         if (hundredths < 10)
             timeBuilder.append("0");
         timeBuilder.append(hundredths);
