@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     SwitchTimer timer;
 
-    //Sensor stuff
+    //Sensor variables
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -33,13 +33,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float prevAccelValue;
     private float currAccelValue;
 
-    //Message displayed when movement isn't detected
+    //Message displayed when cheating is detected
     private TextView antiCheatText;
 
     //Counts number of iterations the phone is lying still
     private long waitTime;
 
-    //Sarcastic comment stuff
+    //Sarcastic comment variables
     SarcasticComment comment;
     private TextView sarcasticCommentText;
     long currentTime;
@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if(waitTime > 500)
                 {
                     this.waitTime=0;
+                    this.antiCheatText.setText("");
                     timer.stopTimer();
                 }
             }
