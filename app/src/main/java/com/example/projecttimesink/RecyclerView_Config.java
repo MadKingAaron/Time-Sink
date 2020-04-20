@@ -35,8 +35,8 @@ public class RecyclerView_Config
         {
             super(LayoutInflater.from(context).inflate(R.layout.user_list_item, parent, false));
 
-            this.username_textView = (TextView) itemView.findViewById(R.id.username_textView);
-            this.time_textView = (TextView) itemView.findViewById(R.id.time_textView);
+            this.username_textView = itemView.findViewById(R.id.username_textView);
+            this.time_textView = itemView.findViewById(R.id.time_textView);
         }
 
         public void bind(User user, String key)

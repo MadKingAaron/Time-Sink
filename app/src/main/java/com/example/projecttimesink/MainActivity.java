@@ -38,7 +38,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ActionableList actionableList;
     private Actionable[] actionableObjects;
 
-    //Sensor stuff
+    SwitchTimer timer;
+
+    //Sensor variables
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -47,11 +49,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float prevAccelValue;
     private float currAccelValue;
 
-    //Message displayed when movement isn't detected
+    //Message displayed when cheating is detected
     private TextView antiCheatText;
 
     //Counts number of iterations the phone is lying still
-    private int waitTime;
+    private long waitTime;
+
+    //Sarcastic comment variables
+    SarcasticComment comment;
+    private TextView sarcasticCommentText;
+    long currentTime;
 
 
 
@@ -238,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void create()
     {
         // TIMER AND BUTTON
-        SwitchTimer timer = new SwitchTimer(this, LeaderboardPopUp.class,
+        this.timer = new SwitchTimer(this, LeaderboardPopUp.class,
                 (TextView) findViewById(R.id.timer),
                 (ImageView) findViewById(R.id.buttonImage),
                 (Button) findViewById(R.id.theButton));
@@ -257,6 +264,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         antiCheatText = findViewById(R.id.antiCheatText);
     }
 
+    private void createSarcasticComment()
+    {
+        this.comment = new SarcasticComment();
+        this.sarcasticCommentText = findViewById(R.id.sarcasticCommentText);
+        this.antiCheatText.setText("");
+    }
+
     /*                                                      *\
         SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
     \*                                                      */
@@ -273,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         create();
         createSensorManager();
+        createSarcasticComment();
         sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_UI);
 
         this.actionableObjects = this.actionableList.toArray();
@@ -284,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event)
     {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && this.timer.isRunning())
         {
             float[] axisValues = event.values.clone();
             prevAccelValue = currAccelValue;
@@ -299,8 +314,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 this.waitTime++;
                 if (waitTime > 300)
                 {
-                    this.antiCheatText.setText("Are you still there?");
+                    this.antiCheatText.setText("Hold your device in your hand.");
                     Log.d("false", "accelValue: " + accelValue);
+                }
+                if(waitTime > 500)
+                {
+                    this.waitTime=0;
+                    this.antiCheatText.setText("");
+                    timer.stopTimer();
                 }
             }
         }
@@ -320,6 +341,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (this.actionableObjects[i] != null)
                 this.actionableObjects[i].update();
         }
+        Log.d("currentTime","String of current time is: " + timer.getTotalTime());
+        //6373 = 6s 373ms
+        this.currentTime=this.timer.getTotalTime();
+        this.comment.determineSarcasticComment(this.currentTime);
+        String currentSarcasticComment=this.comment.sarcasticComment;
+        this.sarcasticCommentText.setText(currentSarcasticComment);
     }
 
     @Override
@@ -335,9 +362,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 handler.postDelayed(this, delay);
             }
         }, delay);
-
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-        //sensorManager.registerListener(MainActivity.this,gyroSensor.gyroscope,SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     // Runs upon pausing of activity
