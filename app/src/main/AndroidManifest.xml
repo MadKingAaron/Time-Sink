@@ -20,9 +20,9 @@
         android:roundIcon="@mipmap/button_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LeaderboardPopUp"></activity>
-        <activity android:name=".Online2" />
-        <activity android:name=".OnlineActivity" />
+        <activity android:name=".Settings"></activity>
+        <activity android:name=".Register" />
+        <activity android:name=".LeaderboardPopUp" />
         <activity android:name=".LeaderboardActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

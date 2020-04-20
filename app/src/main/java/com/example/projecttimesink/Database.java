@@ -15,70 +15,303 @@ import java.util.ArrayList;
 public class Database
 {
     FirebaseDatabase database;
-    DatabaseReference reference;
+    DatabaseReference baseReference;
+    DatabaseReference usersReference;
+    DatabaseReference leaderboardReference;
 
-    ArrayList<User> users = new ArrayList<>();
+    private static final int MAX_LEADERBOARD_USERS = 100;
+    ArrayList<String> leaderboardUserIDs = new ArrayList<>();
+//    String userID;
+//    Long numOfUsers;
 
-    public Database() { this(null); }
-
-    public Database(String path)
+    public Database()
     {
         this.database = FirebaseDatabase.getInstance();
 
-        if(path != null)
-            this.reference = this.database.getReference(path);
-        else
-            this.reference = this.database.getReference();
+        this.baseReference = this.database.getReference();
+        this.usersReference = this.baseReference.child("users");
+        this.leaderboardReference = this.baseReference.child("leaderboard");
+
+//        this.numOfUsers = new Long(0);
     }
 
-    public interface DataStatus
+    public interface UserIDDataStatus
     {
-        void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys);
+        void DataIsLoaded(ArrayList<String> userIDs, ArrayList<String> keys);
         void DataIsInserted();
         void DataIsUpdated();
         void DataIsDeleted();
     }
 
-    public void writeUser(String userId, Long timeWasted)
+    public interface UserDataStatus
     {
-//        readUsers(new DataStatus()
-//        {
-//            @Override
-//            public void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys) {}
-//
-//            @Override
-//            public void DataIsInserted() {}
-//
-//            @Override
-//            public void DataIsUpdated() { }
-//
-//            @Override
-//            public void DataIsDeleted() { }
-//        });
-
-        User user = new User(userId, timeWasted);
-
-        // make it use placement
-
-        this.reference.child("users").child(userId).setValue(user);
+//        void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys);
+        void DataIsLoaded(User[] users, String[] keys);
+        void DataIsInserted();
+        void DataIsUpdated();
+        void DataIsDeleted();
     }
 
-    private void updatePlacement()
+    public void createNewUser(final String userId, final String username, final Long timeWasted, final Long numOfUsers)
     {
+        Long placement = (numOfUsers == null) ? 1 : numOfUsers + 1;
 
+        User newUser = new User(username, timeWasted, placement);
+
+        addUserToLeaderboard(userId, newUser, placement);
+
+        usersReference.child(userId).setValue(newUser);
     }
 
-    public void readUser(String userId)
+    public void updateUserPlacement(final String userId, final Long timeWasted)
     {
-        DatabaseReference reference = this.reference.child("users").child(userId);
+        readUser(userId, new OnGetDataListener()
+        {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot)
+            {
+                User user = dataSnapshot.getValue(User.class);
+
+                if(user.updateTimeWasted(timeWasted))
+                    updatePlacement(userId, user);
+
+                usersReference.child(userId).setValue(user);
+            }
+
+            @Override
+            public void onStart()
+            {
+
+            }
+
+            @Override
+            public void onFailure()
+            {
+
+            }
+        });
+    }
+
+    public void updateUsername(final String userId, final String username)
+    {
+        this.usersReference.child(userId).child("username").setValue(username);
+    }
+
+    private void addUserToLeaderboard(String userID, User currentUser, Long placement)
+    {
+        this.leaderboardReference.child(placement.toString()).setValue(userID);
+
+        updatePlacement(userID, currentUser);
+    }
+
+    private void updatePlacement(final String userID, final User currentUser)
+    {
+        final Long priorPlacement = currentUser.placement - 1;
+
+        if(priorPlacement > 0)
+        {
+            readUserAtPlace(priorPlacement, new OnGetDataListener()
+            {
+                @Override
+                public void onSuccess(DataSnapshot dataSnapshot)
+                {
+                    final String priorUserID = dataSnapshot.getValue(String.class);
+
+                    if(priorUserID != null)
+                    {
+                        // read user
+                        readUser(priorUserID, new OnGetDataListener()
+                        {
+                            @Override
+                            public void onSuccess(DataSnapshot dataSnapshot)
+                            {
+                                User priorUser = dataSnapshot.getValue(User.class);
+
+                                if(priorUser == null || priorUser.longestTimeWasted == null)
+                                {
+                                    Long placement = priorPlacement;
+
+                                    leaderboardReference.child(priorPlacement.toString()).setValue(userID);
+                                    currentUser.placement = placement;
+                                    usersReference.child(userID).setValue(currentUser);
+                                }
+                                else if(priorUser.longestTimeWasted < currentUser.longestTimeWasted)
+                                {
+                                    Long placement = priorPlacement;
+
+                                    leaderboardReference.child(priorPlacement.toString()).setValue(userID);
+                                    currentUser.placement = placement;
+                                    usersReference.child(userID).setValue(currentUser);
+
+                                    placement++;
+
+                                    leaderboardReference.child(placement.toString()).setValue(priorUserID);
+                                    priorUser.placement = placement;
+                                    usersReference.child(priorUserID).setValue(priorUser);
+                                }
+
+                                updatePlacement(userID, currentUser);
+                            }
+
+                            @Override
+                            public void onStart()
+                            {
+
+                            }
+
+                            @Override
+                            public void onFailure()
+                            {
+
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onStart()
+                {
+
+                }
+
+                @Override
+                public void onFailure()
+                {
+
+                }
+            });
+        }
+    }
+
+    public void readUserData(final OnGetDataListener listener)
+    {
+        listener.onStart();
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                User user = dataSnapshot.getValue(User.class);
+                listener.onSuccess(dataSnapshot);
+            }
 
-                System.out.println(user.username + " wasted " + user.timeWasted + " milliseconds");
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                Log.w("CANCELLED", "loadPost:onCancelled", databaseError.toException());
+                listener.onFailure();
+            }
+        };
+
+        this.usersReference.addValueEventListener(postListener);
+    }
+
+    public interface OnGetDataListener
+    {
+        void onSuccess(DataSnapshot dataSnapshot);
+        void onStart();
+        void onFailure();
+    }
+
+    // only reads user data once initially
+
+    public void readUser(String userID, final OnGetDataListener listener)
+    {
+        listener.onStart();
+
+        DatabaseReference reference = this.usersReference.child(userID);
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                listener.onFailure();
+            }
+        };
+
+        reference.addListenerForSingleValueEvent(postListener);
+    }
+
+    public void readUserContinuous(String userID, final OnGetDataListener listener)
+    {
+        listener.onStart();
+
+        DatabaseReference reference = this.usersReference.child(userID);
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                listener.onFailure();
+            }
+        };
+
+        reference.addValueEventListener(postListener);
+    }
+
+    private void readUserAtPlace(Long place, final OnGetDataListener listener)
+    {
+        listener.onStart();
+
+        String placement = place.toString();
+        DatabaseReference reference = this.leaderboardReference.child(placement);
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                Log.w("CANCELLED", "loadPost:onCancelled", databaseError.toException());
+                listener.onFailure();
+            }
+        };
+
+        reference.addListenerForSingleValueEvent(postListener);
+    }
+
+    public void readLeaderboardIDs(final UserIDDataStatus dataStatus)
+    {
+        ValueEventListener leaderboardPostListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                leaderboardUserIDs.clear();
+
+                int numOfUsers = 0;
+
+                ArrayList<String> keys = new ArrayList<>();
+
+                for(DataSnapshot keyNode : dataSnapshot.getChildren())
+                {
+                    if(numOfUsers >= MAX_LEADERBOARD_USERS)
+                        break;
+
+                    keys.add(keyNode.getKey());
+
+                    String userID = keyNode.getValue(String.class);
+
+                    leaderboardUserIDs.add(userID);
+
+                    numOfUsers++;
+                }
+
+                dataStatus.DataIsLoaded(leaderboardUserIDs, keys);
             }
 
             @Override
@@ -88,26 +321,33 @@ public class Database
             }
         };
 
-        reference.addValueEventListener(postListener);
+        this.leaderboardReference.addValueEventListener(leaderboardPostListener);
     }
 
-    public void readUsers(final DataStatus dataStatus)
+    public void readUsers(final ArrayList<String> userIDs, final UserDataStatus dataStatus)
     {
-        DatabaseReference reference = this.reference.child("users");
-
-        ValueEventListener postListener = new ValueEventListener() {
+        ValueEventListener leaderboardPostListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                users.clear();
+                int numOfUsers = userIDs.size();
 
-                ArrayList<String> keys = new ArrayList<>();
+                User[] users = new User[numOfUsers];
+                String[] keys = new String[numOfUsers];
 
                 for(DataSnapshot keyNode : dataSnapshot.getChildren())
                 {
-                    keys.add(keyNode.getKey());
-                    User user = keyNode.getValue(User.class);
-                    users.add(user);
+                    String key = keyNode.getKey();
+
+                    for(int i = 0; i < userIDs.size(); i++)
+                    {
+                        if(key.equals(userIDs.get(i)))
+                        {
+                            User user = keyNode.getValue(User.class);
+                            users[i] = user;
+                            keys[i] = keyNode.getKey();
+                        }
+                    }
                 }
 
                 dataStatus.DataIsLoaded(users, keys);
@@ -120,6 +360,6 @@ public class Database
             }
         };
 
-        reference.addValueEventListener(postListener);
+        this.usersReference.addValueEventListener(leaderboardPostListener);
     }
 }
