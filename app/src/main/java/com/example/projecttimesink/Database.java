@@ -2,8 +2,6 @@ package com.example.projecttimesink;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,8 +19,6 @@ public class Database
 
     private static final int MAX_LEADERBOARD_USERS = 100;
     ArrayList<String> leaderboardUserIDs = new ArrayList<>();
-//    String userID;
-//    Long numOfUsers;
 
     public Database()
     {
@@ -31,8 +27,6 @@ public class Database
         this.baseReference = this.database.getReference();
         this.usersReference = this.baseReference.child("users");
         this.leaderboardReference = this.baseReference.child("leaderboard");
-
-//        this.numOfUsers = new Long(0);
     }
 
     public interface UserIDDataStatus
@@ -45,22 +39,40 @@ public class Database
 
     public interface UserDataStatus
     {
-//        void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys);
         void DataIsLoaded(User[] users, String[] keys);
         void DataIsInserted();
         void DataIsUpdated();
         void DataIsDeleted();
     }
 
-    public void createNewUser(final String userId, final String username, final Long timeWasted, final Long numOfUsers)
+    public void createNewUser(final String userId, final String username, final Long timeWasted)
     {
-        Long placement = (numOfUsers == null) ? 1 : numOfUsers + 1;
+        readNumOfUsers(new OnGetDataListener()
+        {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot)
+            {
+                Long placement = dataSnapshot.getChildrenCount() + 1;
 
-        User newUser = new User(username, timeWasted, placement);
+                User newUser = new User(username, timeWasted, placement);
 
-        addUserToLeaderboard(userId, newUser, placement);
+                addUserToLeaderboard(userId, newUser, placement);
 
-        usersReference.child(userId).setValue(newUser);
+                usersReference.child(userId).setValue(newUser);
+            }
+
+            @Override
+            public void onStart()
+            {
+
+            }
+
+            @Override
+            public void onFailure()
+            {
+
+            }
+        });
     }
 
     public void updateUserPlacement(final String userId, final Long timeWasted)
@@ -181,6 +193,27 @@ public class Database
                 }
             });
         }
+    }
+
+    private void readNumOfUsers(final OnGetDataListener listener)
+    {
+        listener.onStart();
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                listener.onFailure();
+            }
+        };
+
+        this.usersReference.addListenerForSingleValueEvent(postListener);
     }
 
     public void readUserData(final OnGetDataListener listener)
