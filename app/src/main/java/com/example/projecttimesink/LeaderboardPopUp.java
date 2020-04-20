@@ -83,7 +83,7 @@ public class LeaderboardPopUp extends AppCompatActivity
 //                bundle.putSerializable("time", time);
 //                bundle.putSerializable("username", name);
 
-                database.writeUser(name, time);
+//                database.writeUser(name, time);
 
                 switchButton.addFinish(new Finish()
                 {

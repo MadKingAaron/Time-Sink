@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
     private final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Actionable[] actionableObjects;
 
     SwitchTimer timer;
+    boolean timerStarted;
+    boolean timerStopped;
 
     //Sensor variables
     private SensorManager sensorManager;
@@ -60,9 +64,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView sarcasticCommentText;
     long currentTime;
 
-
-
-
     ///Bluetooth////////////////////////////////////////////////////
     //TAG for logs
     private final String TAG = "MainActivity";
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private BluetoothAdapter mBluetoothAdapter;
 
-
     //List of found BT devices
     private ArrayList<BluetoothDevice> mBTDevices;
 
@@ -83,8 +83,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private BluetoothConnectionService mBluetoothConnection;
 
     private static final UUID UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-
-
 
     //////////Broadcast Recievers/////////////////////////
     //Create BroadcastReceiver for ACTION_FOUND
@@ -242,15 +240,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    ImageView settingsIcon;
+    Button settingsButton;
+    SwitchButton settingsSwitchButton;
+
+    FirebaseAuth firebaseAuth;
+
     private void create()
     {
         // TIMER AND BUTTON
-        this.timer = new SwitchTimer(this, LeaderboardPopUp.class,
+        this.timer = new SwitchTimer(this, Register.class,
                 (TextView) findViewById(R.id.timer),
                 (ImageView) findViewById(R.id.buttonImage),
                 (Button) findViewById(R.id.theButton));
 
         this.actionableList.add(timer);
+
+        this.settingsIcon = (ImageView) findViewById(R.id.settingsIcon);
+        this.settingsButton = (Button) findViewById(R.id.settingsButton);
+
+        this.firebaseAuth = FirebaseAuth.getInstance();
+
+        if(this.firebaseAuth.getCurrentUser() == null)
+        {
+            this.settingsSwitchButton = new SwitchButton(this, Register.class, this.settingsButton);
+        }
+        else
+        {
+            this.settingsSwitchButton = new SwitchButton(this, Settings.class, this.settingsButton);
+        }
+
+        this.timerStarted = false;
+        this.timerStopped = false;
     }
 
     private void createSensorManager() //creates sensor manager
@@ -312,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             } else
             {
                 this.waitTime++;
-                if (waitTime > 300)
+                if (this.timerStarted && this.waitTime > 300)
                 {
                     this.antiCheatText.setText("Hold your device in your hand.");
                     Log.d("false", "accelValue: " + accelValue);
@@ -341,12 +362,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (this.actionableObjects[i] != null)
                 this.actionableObjects[i].update();
         }
-        Log.d("currentTime","String of current time is: " + timer.getTotalTime());
-        //6373 = 6s 373ms
-        this.currentTime=this.timer.getTotalTime();
+//        Log.d("currentTime","String of current time is: " + timer.getTotalTime());
+        //6373 = 6s373 ms
+        this.currentTime = this.timer.getTotalTime();
         this.comment.determineSarcasticComment(this.currentTime);
-        String currentSarcasticComment=this.comment.sarcasticComment;
+        String currentSarcasticComment = this.comment.sarcasticComment;
         this.sarcasticCommentText.setText(currentSarcasticComment);
+
+        if(!this.timerStarted && this.timer.isRunning())
+        {
+            this.timerStarted = true;
+            this.timerStopped = false;
+
+            // Anything that is run once upon timer starting
+
+            this.settingsIcon.setVisibility(View.INVISIBLE);
+            this.settingsButton.setEnabled(false);
+        }
+
+        if(!this.timerStopped && this.timerStarted && !this.timer.isRunning())
+        {
+            this.timerStopped = true;
+            this.timerStarted = false;
+
+            // Anything that is run once upon timer stopping
+
+            this.settingsIcon.setVisibility(View.VISIBLE);
+            this.settingsButton.setEnabled(true);
+        }
     }
 
     @Override
@@ -354,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         super.onResume();
 
-        handler.postDelayed(new Runnable()
+        this.handler.postDelayed(new Runnable()
         {
             public void run()
             {
@@ -362,7 +405,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 handler.postDelayed(this, delay);
             }
         }, delay);
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+
+        this.sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
 
     // Runs upon pausing of activity
@@ -615,7 +659,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mBluetoothConnection = new BluetoothConnectionService(MainActivity.this);
         }
     }
-
 
     //TODO Use when emotes are implemented to send via bluetooth
     public void sendEmoteViaBluetooth(EmoteInterface emote) throws EmoteNotSentException{

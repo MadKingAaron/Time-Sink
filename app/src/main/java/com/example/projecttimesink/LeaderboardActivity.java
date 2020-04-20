@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 
@@ -21,6 +24,8 @@ public class LeaderboardActivity extends AppCompatActivity
 
     SwitchButton switchButton;
 
+    ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -31,34 +36,42 @@ public class LeaderboardActivity extends AppCompatActivity
 
         this.switchButton = new SwitchButton(this, MainActivity.class, (Button) findViewById(R.id.restartButton));
 
-//        Intent intent = this.getIntent();
-//        Bundle bundle = intent.getExtras();
-//
-//        if(bundle != null)
-//        {
-//            long time = (long) bundle.getSerializable("time");
-//
-//            this.timeText = new TimeText((TextView) findViewById(R.id.time), time, 1);
-//
-//            String name = (String) bundle.getSerializable("username");
-//
-//            TextView nameText = (TextView) findViewById(R.id.username);
-//
-//            nameText.setText(name);
-//        }
-
-
-
-//        this.database.readUser("k1");
-
+        this.progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         this.recyclerView = findViewById(R.id.recyclerView);
-        this.database.readUsers(new Database.DataStatus()
+        this.database.readLeaderboardIDs(new Database.UserIDDataStatus()
         {
             @Override
-            public void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys)
+            public void DataIsLoaded(ArrayList<String> userIDs, ArrayList<String> keys)
             {
-                new RecyclerView_Config().setConfig(recyclerView, LeaderboardActivity.this, users, keys);
+                database.readUsers(userIDs, new Database.UserDataStatus()
+                {
+                    @Override
+//                    public void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys)
+                    public void DataIsLoaded(User[] users, String[] keys)
+                    {
+                        progressBar.setVisibility(View.GONE);
+                        new RecyclerView_Config().setConfig(recyclerView, LeaderboardActivity.this, users, keys);
+                    }
+
+                    @Override
+                    public void DataIsInserted()
+                    {
+
+                    }
+
+                    @Override
+                    public void DataIsUpdated()
+                    {
+
+                    }
+
+                    @Override
+                    public void DataIsDeleted()
+                    {
+
+                    }
+                });
             }
 
             @Override
