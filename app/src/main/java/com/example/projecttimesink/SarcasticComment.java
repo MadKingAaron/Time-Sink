@@ -1,15 +1,12 @@
 package com.example.projecttimesink;
 
-import java.util.Random;
-
 public class SarcasticComment
 {
     public String sarcasticComment;
 
-
     public void determineSarcasticComment(long currentTime)
     {
-        if(currentTime>10000&&currentTime<17000)
+        if(currentTime>10000&&currentTime<17000)//10,000 = 10 seconds
         {
             emailComment();
         }
@@ -17,7 +14,7 @@ public class SarcasticComment
         {
             googleComment();
         }
-        else if(currentTime>60000&&currentTime<67000)
+        else if(currentTime>60000&&currentTime<67000)//60000=1 minute
         {
             wholeMinuteComment();
         }
