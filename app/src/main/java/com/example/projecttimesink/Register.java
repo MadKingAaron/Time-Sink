@@ -119,15 +119,15 @@ public class Register extends AppCompatActivity
             {
                 username = usernameInput.getText().toString();
 
-                if(TextUtils.isEmpty(username))
-                {
-                    usernameInput.setError("Enter Username To Continue");
-                    return;
-                }
-                else
-                {
-                    // TODO check if username is taken
-                }
+//                if(TextUtils.isEmpty(username))
+//                {
+//                    usernameInput.setError("Enter Username To Continue");
+//                    return;
+//                }
+//                else
+//                {
+//                    // TODO check if username is taken
+//                }
 
                 email = emailInput.getText().toString();
 
@@ -197,6 +197,8 @@ public class Register extends AppCompatActivity
                 {
                     Toast.makeText(Register.this, "Account Creation Successful!", Toast.LENGTH_SHORT).show();
                     String userID = firebaseAuth.getCurrentUser().getUid();
+                    if(username.isEmpty())
+                        username = getUsernameFromEmail(email);
                     database.createNewUser(userID, username, time, numOfUsers);
                     startActivity(new Intent(Register.this, LeaderboardActivity.class));
                     Register.this.finish();
@@ -214,5 +216,10 @@ public class Register extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private String getUsernameFromEmail(String email)
+    {
+        return email.substring(0, email.indexOf("@"));
     }
 }
