@@ -8,19 +8,17 @@ public class User
     public String username;
     public Long totalTimeWasted;
     public Long longestTimeWasted;
-    public Long placement;
 
     public User()
     {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String username, Long timeWasted, Long placement)
+    public User(String username, Long timeWasted)
     {
         this.username = username;
         this.totalTimeWasted = timeWasted;
         this.longestTimeWasted = new Long(Long.valueOf(timeWasted));
-        this.placement = placement;
     }
 
     public void updateUsername(String username)

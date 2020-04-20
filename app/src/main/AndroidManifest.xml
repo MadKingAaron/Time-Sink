@@ -22,7 +22,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".Settings"></activity>
         <activity android:name=".Register" />
-        <activity android:name=".LeaderboardPopUp" />
         <activity android:name=".LeaderboardActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

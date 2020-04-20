@@ -17,7 +17,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 
 public class Register extends AppCompatActivity
 {
@@ -39,8 +38,6 @@ public class Register extends AppCompatActivity
     FirebaseAuth firebaseAuth;
 
     private Database database;
-
-    Long numOfUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -90,44 +87,12 @@ public class Register extends AppCompatActivity
             finish();
         }
 
-        this.database.readUserData(new Database.OnGetDataListener()
-        {
-            @Override
-            public void onSuccess(DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
-                    numOfUsers = dataSnapshot.getChildrenCount();
-            }
-
-            @Override
-            public void onStart()
-            {
-
-            }
-
-            @Override
-            public void onFailure()
-            {
-
-            }
-        });
-
         this.enterButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
                 username = usernameInput.getText().toString();
-
-//                if(TextUtils.isEmpty(username))
-//                {
-//                    usernameInput.setError("Enter Username To Continue");
-//                    return;
-//                }
-//                else
-//                {
-//                    // TODO check if username is taken
-//                }
 
                 email = emailInput.getText().toString();
 
@@ -199,7 +164,7 @@ public class Register extends AppCompatActivity
                     String userID = firebaseAuth.getCurrentUser().getUid();
                     if(username.isEmpty())
                         username = getUsernameFromEmail(email);
-                    database.createNewUser(userID, username, time, numOfUsers);
+                    database.createNewUser(userID, username, time);
                     startActivity(new Intent(Register.this, LeaderboardActivity.class));
                     Register.this.finish();
                 }

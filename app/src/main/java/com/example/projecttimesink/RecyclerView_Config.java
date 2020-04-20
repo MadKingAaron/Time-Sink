@@ -16,7 +16,6 @@ public class RecyclerView_Config
     private Context context;
     private UserAdapter userAdapter;
 
-//    public void setConfig(RecyclerView recyclerView, Context context, List<User> users, List<String> keys)
     public void setConfig(RecyclerView recyclerView, Context context, User[] users, String[] keys)
     {
         this.context = context;
@@ -50,12 +49,9 @@ public class RecyclerView_Config
 
     class UserAdapter extends RecyclerView.Adapter<UserItemView>
     {
-//        private List<User> users;
-//        private List<String> keys;
         private User[] users;
         private String[] keys;
 
-//        public UserAdapter(List<User> users, List<String> keys)
         public UserAdapter(User[] users, String[] keys)
         {
             this.users = users;
@@ -72,14 +68,12 @@ public class RecyclerView_Config
         @Override
         public void onBindViewHolder(@NonNull UserItemView holder, int position)
         {
-//            holder.bind(this.users.get(position), this.keys.get(position));
             holder.bind(this.users[position], this.keys[position], position+1);
         }
 
         @Override
         public int getItemCount()
         {
-//            return users.size();
             return users.length;
         }
     }

@@ -2,8 +2,6 @@ package com.example.projecttimesink;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,8 +19,6 @@ public class Database
 
     private static final int MAX_LEADERBOARD_USERS = 100;
     ArrayList<String> leaderboardUserIDs = new ArrayList<>();
-//    String userID;
-//    Long numOfUsers;
 
     public Database()
     {
@@ -31,8 +27,6 @@ public class Database
         this.baseReference = this.database.getReference();
         this.usersReference = this.baseReference.child("users");
         this.leaderboardReference = this.baseReference.child("leaderboard");
-
-//        this.numOfUsers = new Long(0);
     }
 
     public interface UserIDDataStatus
@@ -45,37 +39,92 @@ public class Database
 
     public interface UserDataStatus
     {
-//        void DataIsLoaded(ArrayList<User> users, ArrayList<String> keys);
         void DataIsLoaded(User[] users, String[] keys);
         void DataIsInserted();
         void DataIsUpdated();
         void DataIsDeleted();
     }
 
-    public void createNewUser(final String userId, final String username, final Long timeWasted, final Long numOfUsers)
+    public void createNewUser(final String userId, final String username, final Long timeWasted)
     {
-        Long placement = (numOfUsers == null) ? 1 : numOfUsers + 1;
-
-        User newUser = new User(username, timeWasted, placement);
-
-        addUserToLeaderboard(userId, newUser, placement);
-
-        usersReference.child(userId).setValue(newUser);
-    }
-
-    public void updateUserPlacement(final String userId, final Long timeWasted)
-    {
-        readUser(userId, new OnGetDataListener()
+        readNumOfUsers(new OnGetDataListener()
         {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot)
             {
-                User user = dataSnapshot.getValue(User.class);
+                Long placement = dataSnapshot.getChildrenCount() + 1;
+
+                User newUser = new User(username, timeWasted);
+
+                addUserToLeaderboard(userId, newUser, placement);
+
+                usersReference.child(userId).setValue(newUser);
+            }
+
+            @Override
+            public void onStart()
+            {
+
+            }
+
+            @Override
+            public void onFailure()
+            {
+
+            }
+        });
+    }
+
+    public void updateUserPlacement(final String userID, final Long timeWasted)
+    {
+        readUser(userID, new OnGetDataListener()
+        {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot)
+            {
+                final User user = dataSnapshot.getValue(User.class);
 
                 if(user.updateTimeWasted(timeWasted))
-                    updatePlacement(userId, user);
+                {
+                    readPlacement(new OnGetDataListener()
+                    {
+                        @Override
+                        public void onSuccess(DataSnapshot dataSnapshot)
+                        {
+                            Long placement = null;
 
-                usersReference.child(userId).setValue(user);
+                            for(DataSnapshot keyNode : dataSnapshot.getChildren())
+                            {
+                                String currentUserID = keyNode.getValue(String.class);
+
+                                if(currentUserID == userID)
+                                {
+                                    placement = Long.parseLong(keyNode.getKey());
+                                    break;
+                                }
+                            }
+
+                            if(placement == null)
+                                placement = new Long(0);
+
+                            updatePlacement(userID, user, placement);
+                        }
+
+                        @Override
+                        public void onStart()
+                        {
+
+                        }
+
+                        @Override
+                        public void onFailure()
+                        {
+
+                        }
+                    });
+                }
+
+                usersReference.child(userID).setValue(user);
             }
 
             @Override
@@ -101,12 +150,33 @@ public class Database
     {
         this.leaderboardReference.child(placement.toString()).setValue(userID);
 
-        updatePlacement(userID, currentUser);
+        updatePlacement(userID, currentUser, placement);
     }
 
-    private void updatePlacement(final String userID, final User currentUser)
+    private void readPlacement(final OnGetDataListener listener)
     {
-        final Long priorPlacement = currentUser.placement - 1;
+        listener.onStart();
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                listener.onFailure();
+            }
+        };
+
+        this.leaderboardReference.addListenerForSingleValueEvent(postListener);
+    }
+
+    private void updatePlacement(final String userID, final User currentUser, final long placement)
+    {
+        final Long priorPlacement = placement - 1;
 
         if(priorPlacement > 0)
         {
@@ -129,28 +199,20 @@ public class Database
 
                                 if(priorUser == null || priorUser.longestTimeWasted == null)
                                 {
-                                    Long placement = priorPlacement;
-
                                     leaderboardReference.child(priorPlacement.toString()).setValue(userID);
-                                    currentUser.placement = placement;
-                                    usersReference.child(userID).setValue(currentUser);
                                 }
                                 else if(priorUser.longestTimeWasted < currentUser.longestTimeWasted)
                                 {
                                     Long placement = priorPlacement;
 
                                     leaderboardReference.child(priorPlacement.toString()).setValue(userID);
-                                    currentUser.placement = placement;
-                                    usersReference.child(userID).setValue(currentUser);
 
                                     placement++;
 
                                     leaderboardReference.child(placement.toString()).setValue(priorUserID);
-                                    priorUser.placement = placement;
-                                    usersReference.child(priorUserID).setValue(priorUser);
                                 }
 
-                                updatePlacement(userID, currentUser);
+                                updatePlacement(userID, currentUser, priorPlacement);
                             }
 
                             @Override
@@ -181,6 +243,27 @@ public class Database
                 }
             });
         }
+    }
+
+    private void readNumOfUsers(final OnGetDataListener listener)
+    {
+        listener.onStart();
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                listener.onFailure();
+            }
+        };
+
+        this.usersReference.addListenerForSingleValueEvent(postListener);
     }
 
     public void readUserData(final OnGetDataListener listener)
