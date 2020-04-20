@@ -263,7 +263,7 @@ public class Database
             }
         };
 
-        this.usersReference.addListenerForSingleValueEvent(postListener);
+        this.leaderboardReference.addListenerForSingleValueEvent(postListener);
     }
 
     public void readUserData(final OnGetDataListener listener)
