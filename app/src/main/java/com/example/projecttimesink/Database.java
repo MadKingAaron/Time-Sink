@@ -97,7 +97,7 @@ public class Database
                             {
                                 String currentUserID = keyNode.getValue(String.class);
 
-                                if(currentUserID == userID)
+                                if(currentUserID.equals(userID))
                                 {
                                     placement = Long.parseLong(keyNode.getKey());
                                     break;
