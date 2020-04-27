@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Button bluetoothButton;
 
+    Button sendButton;
+
     private boolean bluetoothDevicePaired;
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -202,7 +204,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private BroadcastReceiver messageReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //String text = intent.getStringExtra("message");
+
             String text = intent.getStringExtra("message");
+
+            Log.d(TAG, "Message Recieved: "+ text);
 
             //TODO finish emote reciever
             //messages.delete(0, messages.length() - 1);
@@ -236,6 +242,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 BTHandler(view);
             }
         });
+
+        this.sendButton = (Button) findViewById(R.id.SendButton);
+
+        this.sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBluetoothConnection.write(new byte[64]);
+            }
+        });
+
+
+        registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
+
+
+
 
 
     }

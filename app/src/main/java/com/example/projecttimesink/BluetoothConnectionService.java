@@ -11,6 +11,8 @@ import android.util.Log;
 
 //import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,6 +23,7 @@ public class BluetoothConnectionService {
 
     public static final String TAG = "BluetoothConnectServe";
     public static final String appname = "TimeSink";
+    public static final String BROADCAST_FILTER = "BluetoothConnectionService_broadcast_receiver_intent_filter";
 
     private static final UUID UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
@@ -259,12 +262,13 @@ public class BluetoothConnectionService {
                     Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
 
                     //Pass to main activity through intent named "incomingMessage"
-                    Intent incomingMessageIntent = new Intent("incommingMessage");
+                    Intent incomingMessageIntent = new Intent(BROADCAST_FILTER);
                     incomingMessageIntent.putExtra("message", incomingMessage);
 
                     //Send the broadcast
                     //TODO Send intent
                     //LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
 
                 } catch (IOException e) {
                     Log.d(TAG, "ConnectedThread: Issue reading with InputStream "+e.getMessage());
@@ -367,7 +371,7 @@ public class BluetoothConnectionService {
     public void write(byte[] out)
     {
         //Create temporary object
-        ConnectedThread r;
+        //ConnectedThread r;
 
         //Synchronize a copy of the ConnectedThread
         Log.d(TAG, "write: Write called.");
