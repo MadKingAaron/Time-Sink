@@ -45,7 +45,12 @@ public class Database
         void DataIsDeleted();
     }
 
-    public void createNewUser(final String userId, final String username, final Long timeWasted)
+    public interface CompleteStatus
+    {
+        void onComplete();
+    }
+
+    public void createNewUser(final String userId, final String username, final long timeWasted, final CompleteStatus status)
     {
         readNumOfUsers(new OnGetDataListener()
         {
@@ -54,11 +59,11 @@ public class Database
             {
                 Long placement = dataSnapshot.getChildrenCount() + 1;
 
-                User newUser = new User(username, timeWasted);
-
-                addUserToLeaderboard(userId, newUser, placement);
+                User newUser = new User(username, new Long(timeWasted));
 
                 usersReference.child(userId).setValue(newUser);
+
+                addUserToLeaderboard(userId, newUser, placement, status);
             }
 
             @Override
@@ -75,7 +80,7 @@ public class Database
         });
     }
 
-    public void updateUserPlacement(final String userID, final Long timeWasted)
+    public void updateUserPlacement(final String userID, final Long timeWasted, final CompleteStatus status)
     {
         readUser(userID, new OnGetDataListener()
         {
@@ -107,7 +112,7 @@ public class Database
                             if(placement == null)
                                 placement = new Long(0);
 
-                            updatePlacement(userID, user, placement);
+                            updatePlacement(userID, user, placement, status);
                         }
 
                         @Override
@@ -123,6 +128,8 @@ public class Database
                         }
                     });
                 }
+                else
+                    status.onComplete();
 
                 usersReference.child(userID).setValue(user);
             }
@@ -146,11 +153,11 @@ public class Database
         this.usersReference.child(userId).child("username").setValue(username);
     }
 
-    private void addUserToLeaderboard(String userID, User currentUser, Long placement)
+    private void addUserToLeaderboard(String userID, User currentUser, Long placement, final CompleteStatus status)
     {
         this.leaderboardReference.child(placement.toString()).setValue(userID);
 
-        updatePlacement(userID, currentUser, placement);
+        updatePlacement(userID, currentUser, placement, status);
     }
 
     private void readPlacement(final OnGetDataListener listener)
@@ -174,7 +181,7 @@ public class Database
         this.leaderboardReference.addListenerForSingleValueEvent(postListener);
     }
 
-    private void updatePlacement(final String userID, final User currentUser, final long placement)
+    private void updatePlacement(final String userID, final User currentUser, final long placement, final CompleteStatus status)
     {
         final Long priorPlacement = placement - 1;
 
@@ -212,7 +219,7 @@ public class Database
                                     leaderboardReference.child(placement.toString()).setValue(priorUserID);
                                 }
 
-                                updatePlacement(userID, currentUser, priorPlacement);
+                                updatePlacement(userID, currentUser, priorPlacement, status);
                             }
 
                             @Override
@@ -243,6 +250,8 @@ public class Database
                 }
             });
         }
+        else
+            status.onComplete();
     }
 
     private void readNumOfUsers(final OnGetDataListener listener)
