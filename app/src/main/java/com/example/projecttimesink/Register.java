@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 
 public class Register extends AppCompatActivity
 {
@@ -78,13 +79,22 @@ public class Register extends AppCompatActivity
 
         if(this.firebaseAuth.getCurrentUser() != null)
         {
-            // switch activity
-            String userID = firebaseAuth.getCurrentUser().getUid();
-            database.updateUserPlacement(userID, time);
+            this.usernameInput.setVisibility(View.GONE);
+            this.emailInput.setVisibility(View.GONE);
+            this.passwordInput.setVisibility(View.GONE);
+            this.enterButton.setVisibility(View.GONE);
+            this.progressBar.setVisibility(View.VISIBLE);
 
-            Intent nextIntent = new Intent(this, LeaderboardActivity.class);
-            startActivity(nextIntent);
-            finish();
+            String userID = firebaseAuth.getCurrentUser().getUid();
+            database.updateUserPlacement(userID, time, new Database.CompleteStatus()
+            {
+                @Override
+                public void onComplete()
+                {
+                    startActivity(new Intent(Register.this, LeaderboardActivity.class));
+                    Register.this.finish();
+                }
+            });
         }
 
         this.enterButton.setOnClickListener(new View.OnClickListener()
@@ -126,13 +136,19 @@ public class Register extends AppCompatActivity
             {
                 if(task.isSuccessful())
                 {
-                    Toast.makeText(Register.this, "Log In Successful!", Toast.LENGTH_SHORT).show();
                     String userID = firebaseAuth.getCurrentUser().getUid();
-                    database.updateUserPlacement(userID, time);
                     if(!username.isEmpty())
                         database.updateUsername(userID, username);
-                    startActivity(new Intent(Register.this, LeaderboardActivity.class));
-                    Register.this.finish();
+                    database.updateUserPlacement(userID, time, new Database.CompleteStatus()
+                    {
+                        @Override
+                        public void onComplete()
+                        {
+                            Toast.makeText(Register.this, "Log In Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(Register.this, LeaderboardActivity.class));
+                            Register.this.finish();
+                        }
+                    });
                 }
                 else
                 {
@@ -160,13 +176,19 @@ public class Register extends AppCompatActivity
             {
                 if(task.isSuccessful())
                 {
-                    Toast.makeText(Register.this, "Account Creation Successful!", Toast.LENGTH_SHORT).show();
                     String userID = firebaseAuth.getCurrentUser().getUid();
                     if(username.isEmpty())
                         username = getUsernameFromEmail(email);
-                    database.createNewUser(userID, username, time);
-                    startActivity(new Intent(Register.this, LeaderboardActivity.class));
-                    Register.this.finish();
+                    database.createNewUser(userID, username, time, new Database.CompleteStatus()
+                    {
+                        @Override
+                        public void onComplete()
+                        {
+                            Toast.makeText(Register.this, "Account Creation Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(Register.this, LeaderboardActivity.class));
+                            Register.this.finish();
+                        }
+                    });
                 }
                 else
                 {
