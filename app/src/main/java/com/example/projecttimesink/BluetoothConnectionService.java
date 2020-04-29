@@ -36,12 +36,18 @@ public class BluetoothConnectionService {
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
 
+
+    private BluetoothMessageReceive messagePackage;
+
     ProgressDialog progressDialog;
 
-    public BluetoothConnectionService(Context context)
+    public BluetoothConnectionService(Context context, BluetoothMessageReceive bluetoothPackage)
     {
         this.context = context;
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        this.messagePackage = bluetoothPackage;
+
         start();
     }
 
@@ -269,6 +275,8 @@ public class BluetoothConnectionService {
                     //TODO Send intent
                     //LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
                     LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
+
+                    messagePackage.updateData(incomingMessage);
 
                 } catch (IOException e) {
                     Log.d(TAG, "ConnectedThread: Issue reading with InputStream "+e.getMessage());

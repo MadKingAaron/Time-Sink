@@ -3,6 +3,7 @@ package com.example.projecttimesink;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ///Bluetooth////////////////////////////////////////////////////
     //TAG for logs
     private final String TAG = "MainActivity";
+
+    private BluetoothMessageReceive bluetoothPackage;
 
     Button bluetoothButton;
 
@@ -253,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
 
-        registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
 
 
 
@@ -410,6 +413,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.VISIBLE);
             this.settingsButton.setEnabled(true);
+        }
+
+
+        updateBluetoothMessage();
+    }
+
+    private void updateBluetoothMessage()
+    {
+        if(this.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
+        {
+            String message = (String) this.bluetoothPackage.getData();
+            Log.d(TAG, "\t\t\t\t\t Message --- "+message);
         }
     }
 
@@ -677,7 +692,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //Start connection service
             mBTDevice = mBTDevices.get(deviceIndex);
-            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this);
+            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this, this.bluetoothPackage);
         }
     }
 
