@@ -15,6 +15,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class BluetoothConnectionService {
     private UUID deviceUUID;
 
 
-    private BluetoothMessageReceive messagePackage;
+    BluetoothMessageReceive messagePackage;
 
     ProgressDialog progressDialog;
 
@@ -257,28 +258,28 @@ public class BluetoothConnectionService {
 
             int bytes; //bytes returned from read()
 
+            ObjectInputStream objectInputStream;
+
             //Keep listening to the InputStream until an exception occurs
             while(true)
             {
                 //Read from the InputStream
                 try {
                     bytes = this.bluetoothSocket.getInputStream().read(buffer);
-                    String incomingMessage = new String(buffer, 0, bytes);
+                    //TODO: Use for debug
+                    //String incomingMessage = new String(buffer, 0, bytes);
 
-                    Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
+                    //
+                    objectInputStream = new ObjectInputStream(this.bluetoothSocket.getInputStream());
+                    EmoteInterface incomingMessage = (EmoteInterface) objectInputStream.readObject();
 
-                    //Pass to main activity through intent named "incomingMessage"
-                    Intent incomingMessageIntent = new Intent(BROADCAST_FILTER);
-                    incomingMessageIntent.putExtra("message", incomingMessage);
 
-                    //Send the broadcast
-                    //TODO Send intent
-                    //LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
+                    //Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
+
 
                     messagePackage.updateData(incomingMessage);
 
-                } catch (IOException e) {
+                } catch (IOException | ClassNotFoundException e) {
                     Log.d(TAG, "ConnectedThread: Issue reading with InputStream "+e.getMessage());
                     break;
                 }

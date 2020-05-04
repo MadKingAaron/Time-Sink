@@ -1,6 +1,6 @@
 package com.example.projecttimesink;
 
-public class EmoteBluetoothPackage implements BluetoothMessageReceive {
+public class EmoteBluetoothPackage implements BluetoothMessageReceive <EmoteInterface> {
     private EmoteInterface emote;
     private Boolean updatedSinceLastCheck;
 
@@ -16,13 +16,13 @@ public class EmoteBluetoothPackage implements BluetoothMessageReceive {
     }
 
     @Override
-    public Object getData() {
+    public EmoteInterface getData() {
         this.updatedSinceLastCheck = false;
         return this.emote;
     }
 
     @Override
-    public Object clonePackage() {
+    public BluetoothMessageReceive<EmoteInterface> clonePackage() {
         EmoteBluetoothPackage newPackage = new EmoteBluetoothPackage();
         newPackage.emote = this.emote;
         return newPackage;

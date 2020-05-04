@@ -113,16 +113,4 @@
         app:srcCompat="@drawable/settings_icon_foreground"
         android:visibility="visible" />
 
-    <Button
-        android:id="@+id/SendButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="109dp"
-        android:layout_marginTop="72dp"
-        android:text="Send"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.012"
-        app:layout_constraintStart_toEndOf="@+id/bluetoothButton"
-        app:layout_constraintTop_toBottomOf="@+id/buttonImage" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

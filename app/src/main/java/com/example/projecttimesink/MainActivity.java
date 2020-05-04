@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Button bluetoothButton;
 
-    Button sendButton;
+    //Button sendButton;
 
     private boolean bluetoothDevicePaired;
 
@@ -246,17 +246,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        this.sendButton = (Button) findViewById(R.id.SendButton);
+        //TODO: Use for debuging of bluetooth message passing
+        /*this.sendButton = (Button) findViewById(R.id.SendButton);
 
         this.sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mBluetoothConnection.write(new byte[64]);
             }
-        });
+        });*/
 
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
+        //LocalBroadcastManager.getInstance(this).registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
+
+
+        //TODO: Use StringBluetoothPackage for debug and EmoteBluetoothPackage for emotes
+        //this.bluetoothPackage = new StringBluetoothPackage();
+        this.bluetoothPackage = new EmoteBluetoothPackage();
 
 
 
@@ -421,10 +427,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void updateBluetoothMessage()
     {
+
         if(this.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
         {
-            String message = (String) this.bluetoothPackage.getData();
-            Log.d(TAG, "\t\t\t\t\t Message --- "+message);
+            //Used for testing bluetooth
+            //String message = (String) this.bluetoothPackage.getData();
+            //Log.d(TAG, "\t\t\t\t\t Message --- "+message);
+
+            //TODO: Here is where to write code to display new emote
         }
     }
 

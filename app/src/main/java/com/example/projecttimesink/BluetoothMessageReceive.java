@@ -1,12 +1,12 @@
 package com.example.projecttimesink;
 
-public interface BluetoothMessageReceive {
+public interface BluetoothMessageReceive<T> {
 
     public void updateData(Object newData);
 
-    public Object getData();
+    public T getData();
 
-    public Object clonePackage();
+    public BluetoothMessageReceive clonePackage();
 
     public boolean checkIfDataUpdatedSinceLastCall();
 }

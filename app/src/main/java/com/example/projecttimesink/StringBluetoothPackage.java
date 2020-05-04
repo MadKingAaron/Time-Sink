@@ -1,6 +1,6 @@
 package com.example.projecttimesink;
 
-public class StringBluetoothPackage implements BluetoothMessageReceive {
+public class StringBluetoothPackage implements BluetoothMessageReceive<String> {
     private String data;
     private boolean updatedSinceLastCheck;
 
@@ -15,13 +15,13 @@ public class StringBluetoothPackage implements BluetoothMessageReceive {
     }
 
     @Override
-    public Object getData() {
+    public String getData() {
         this.updatedSinceLastCheck = false;
         return this.data;
     }
 
     @Override
-    public Object clonePackage() {
+    public BluetoothMessageReceive<String> clonePackage() {
         StringBluetoothPackage newPackage = new StringBluetoothPackage();
         newPackage.data = this.data;
         return new StringBluetoothPackage();
