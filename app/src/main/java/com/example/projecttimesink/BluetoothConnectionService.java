@@ -11,8 +11,11 @@ import android.util.Log;
 
 //import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
@@ -21,6 +24,7 @@ public class BluetoothConnectionService {
 
     public static final String TAG = "BluetoothConnectServe";
     public static final String appname = "TimeSink";
+    public static final String BROADCAST_FILTER = "BluetoothConnectionService_broadcast_receiver_intent_filter";
 
     private static final UUID UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
@@ -33,12 +37,18 @@ public class BluetoothConnectionService {
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
 
+
+    BluetoothMessageReceive messagePackage;
+
     ProgressDialog progressDialog;
 
-    public BluetoothConnectionService(Context context)
+    public BluetoothConnectionService(Context context, BluetoothMessageReceive bluetoothPackage)
     {
         this.context = context;
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        this.messagePackage = bluetoothPackage;
+
         start();
     }
 
@@ -248,25 +258,28 @@ public class BluetoothConnectionService {
 
             int bytes; //bytes returned from read()
 
+            ObjectInputStream objectInputStream;
+
             //Keep listening to the InputStream until an exception occurs
             while(true)
             {
                 //Read from the InputStream
                 try {
                     bytes = this.bluetoothSocket.getInputStream().read(buffer);
-                    String incomingMessage = new String(buffer, 0, bytes);
+                    //TODO: Use for debug
+                    //String incomingMessage = new String(buffer, 0, bytes);
 
-                    Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
+                    //
+                    objectInputStream = new ObjectInputStream(this.bluetoothSocket.getInputStream());
+                    EmoteInterface incomingMessage = (EmoteInterface) objectInputStream.readObject();
 
-                    //Pass to main activity through intent named "incomingMessage"
-                    Intent incomingMessageIntent = new Intent("incommingMessage");
-                    incomingMessageIntent.putExtra("message", incomingMessage);
 
-                    //Send the broadcast
-                    //TODO Send intent
-                    //LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
+                    //Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
 
-                } catch (IOException e) {
+
+                    messagePackage.updateData(incomingMessage);
+
+                } catch (IOException | ClassNotFoundException e) {
                     Log.d(TAG, "ConnectedThread: Issue reading with InputStream "+e.getMessage());
                     break;
                 }
@@ -367,7 +380,7 @@ public class BluetoothConnectionService {
     public void write(byte[] out)
     {
         //Create temporary object
-        ConnectedThread r;
+        //ConnectedThread r;
 
         //Synchronize a copy of the ConnectedThread
         Log.d(TAG, "write: Write called.");

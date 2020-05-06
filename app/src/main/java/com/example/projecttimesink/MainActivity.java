@@ -3,6 +3,7 @@ package com.example.projecttimesink;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -68,7 +69,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //TAG for logs
     private final String TAG = "MainActivity";
 
+    private BluetoothMessageReceive bluetoothPackage;
+
     Button bluetoothButton;
+
+    //Button sendButton;
 
     private boolean bluetoothDevicePaired;
 
@@ -202,7 +207,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private BroadcastReceiver messageReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //String text = intent.getStringExtra("message");
+
             String text = intent.getStringExtra("message");
+
+            Log.d(TAG, "Message Recieved: "+ text);
 
             //TODO finish emote reciever
             //messages.delete(0, messages.length() - 1);
@@ -236,6 +245,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 BTHandler(view);
             }
         });
+
+        //TODO: Use for debuging of bluetooth message passing
+        /*this.sendButton = (Button) findViewById(R.id.SendButton);
+
+        this.sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBluetoothConnection.write(new byte[64]);
+            }
+        });*/
+
+
+        //LocalBroadcastManager.getInstance(this).registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
+
+
+        //TODO: Use StringBluetoothPackage for debug and EmoteBluetoothPackage for emotes
+        //this.bluetoothPackage = new StringBluetoothPackage();
+        this.bluetoothPackage = new EmoteBluetoothPackage();
+
+
+
 
 
     }
@@ -389,6 +419,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.VISIBLE);
             this.settingsButton.setEnabled(true);
+        }
+
+
+        updateBluetoothMessage();
+    }
+
+    private void updateBluetoothMessage()
+    {
+
+        if(this.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
+        {
+            //Used for testing bluetooth
+            //String message = (String) this.bluetoothPackage.getData();
+            //Log.d(TAG, "\t\t\t\t\t Message --- "+message);
+
+            //TODO: Here is where to write code to display new emote
         }
     }
 
@@ -656,7 +702,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //Start connection service
             mBTDevice = mBTDevices.get(deviceIndex);
-            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this);
+            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this, this.bluetoothPackage);
         }
     }
 
