@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private BluetoothConnectionService mBluetoothConnection;
 
     private static final UUID UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+
+    //CLick sounds
+    private MediaPlayer clickMP;
 
     //////////Broadcast Recievers/////////////////////////
     //Create BroadcastReceiver for ACTION_FOUND
