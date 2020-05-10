@@ -16,11 +16,13 @@ public class AchievementActivity extends AppCompatActivity
     Database database;
     FirebaseAuth firebaseAuth;
     String userID;
-    long longestTimeWasted=0;
+    long time;
 
     ImageView achievementOne;
     ImageView achievementTwo;
     ImageView achievementThree;
+
+    User user;
 
     //Instead of scrolling, maybe start with a list that doesn't move?
 
@@ -31,15 +33,23 @@ public class AchievementActivity extends AppCompatActivity
         setContentView(R.layout.activity_achievement);
         configureBackButton();
 
+        this.time=0;
         this.database=new Database();
+        this.firebaseAuth=FirebaseAuth.getInstance();
         this.userID=firebaseAuth.getCurrentUser().getUid();
-        this.database.readUser(userID, new Database.OnGetDataListener()
+        achievementOne=(ImageView) findViewById(R.id.greenOne);
+        achievementTwo=(ImageView) findViewById(R.id.greenTwo);
+        achievementThree=(ImageView) findViewById(R.id.greenThree);
+        this.database.readUser(this.userID, new Database.OnGetDataListener()
         {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot)
             {
-                User user = dataSnapshot.getValue(User.class);
-                longestTimeWasted=user.longestTimeWasted;
+                user = dataSnapshot.getValue(User.class);
+                time=user.longestTimeWasted;
+                Achievement achievement=new Achievement(time);
+                int numberOfAchievementsUnlocked=achievement.checkLongestTimeWastedAchievements();
+                setGreen(numberOfAchievementsUnlocked);
             }
 
             @Override
@@ -52,28 +62,7 @@ public class AchievementActivity extends AppCompatActivity
 
             }
         });
-        Achievement achievement=new Achievement(longestTimeWasted);
-        int numberOfAchievementsUnlocked=achievement.checkLongestTimeWastedAchievements();
 
-        this.achievementOne=(ImageView) findViewById(R.id.greenOne);
-        this.achievementTwo=(ImageView) findViewById(R.id.greenTwo);
-        this.achievementThree=(ImageView) findViewById(R.id.greenThree);
-
-        if(numberOfAchievementsUnlocked==1)
-        {
-            this.achievementOne.setVisibility(View.VISIBLE);
-        }
-        else if(numberOfAchievementsUnlocked==2)
-        {
-            this.achievementOne.setVisibility(View.VISIBLE);
-            this.achievementTwo.setVisibility(View.VISIBLE);
-        }
-        else if(numberOfAchievementsUnlocked==3)
-        {
-            this.achievementOne.setVisibility(View.VISIBLE);
-            this.achievementTwo.setVisibility(View.VISIBLE);
-            this.achievementThree.setVisibility(View.VISIBLE);
-        }
     }
 
     private void configureBackButton()
@@ -89,4 +78,22 @@ public class AchievementActivity extends AppCompatActivity
         });
     }
 
+    private void setGreen(int numberOfAchievementsUnlocked)
+    {
+        if(numberOfAchievementsUnlocked==1)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==2)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==3)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+            achievementThree.setVisibility(View.VISIBLE);
+        }
+    }
 }

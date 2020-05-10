@@ -25,6 +25,7 @@ public class Achievement
         {
             numberOfAchievementsUnlocked=3;
         }
+
         return numberOfAchievementsUnlocked;
     }
 }
