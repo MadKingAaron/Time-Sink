@@ -1,5 +1,6 @@
 package com.example.projecttimesink;
 
+import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +18,8 @@ public class Timer implements Actionable
     private ImageView buttonImage;
     private Button theButton;
 
+    private MediaPlayer musicMP;
+
     public Timer(TextView timerText, ImageView buttonImage, Button theButton)
     {
         this.timeText = new TimeText(timerText, (this.totalTime = 0));
@@ -29,12 +32,17 @@ public class Timer implements Actionable
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
                 // start
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     startTimer();
-
+                    createMP();
+                    musicMP.start();
+                }
                     // stop
-                else if (motionEvent.getAction() == MotionEvent.ACTION_UP)
+                else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     stopTimer();
+                    musicMP.release();
+                }
+
 
                 return true;
             }
@@ -102,5 +110,10 @@ public class Timer implements Actionable
     private void resetTimer()
     {
         setTimer(this.totalTime = 0);
+    }
+
+    public void createMP ()
+    {
+        musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.bennytheme);
     }
 }
