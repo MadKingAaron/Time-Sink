@@ -113,4 +113,29 @@
         app:srcCompat="@drawable/settings_icon_foreground"
         android:visibility="visible" />
 
+    <Button
+        android:id="@+id/achievementButton"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:alpha="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.012"/>
+
+    <ImageView
+        android:id="@+id/achievementIcon"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.012"
+        app:srcCompat="@drawable/trophy" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

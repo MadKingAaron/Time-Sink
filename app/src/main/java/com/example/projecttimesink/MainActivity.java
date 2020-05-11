@@ -345,6 +345,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         createBluetooth();
+        configureAchievementButton();
+    }
+
+    private void configureAchievementButton()
+    {
+        Button achievementButton=(Button) findViewById(R.id.achievementButton);
+        achievementButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                startActivity(new Intent(MainActivity.this, AchievementActivity.class));
+            }
+        });
     }
 
     @Override
