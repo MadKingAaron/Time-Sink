@@ -10,8 +10,8 @@ public class EmoteBluetoothPackage implements BluetoothMessageReceive <EmoteInte
     }
 
     @Override
-    public void updateData(Object newData) {
-        this.emote = (EmoteInterface) newData;
+    public void updateData(EmoteInterface newData) {
+        this.emote = newData;
         this.updatedSinceLastCheck = true;
     }
 

@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         //TODO: Use StringBluetoothPackage for debug and EmoteBluetoothPackage for emotes
         //this.bluetoothPackage = new StringBluetoothPackage();
-        this.bluetoothPackage = new EmoteBluetoothPackage();
+        BluetoothSharedMemory.bluetoothPackage = new EmoteBluetoothPackage();
 
 
 
@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void updateBluetoothMessage()
     {
 
-        if(this.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
+        if(BluetoothSharedMemory.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
         {
             //Used for testing bluetooth
             //String message = (String) this.bluetoothPackage.getData();
@@ -725,13 +725,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     //TODO Use when emotes are implemented to send via bluetooth
-    public void sendEmoteViaBluetooth(EmoteInterface emote) throws EmoteNotSentException{
+    public void sendEmoteViaBluetooth(int emote) throws EmoteNotSentException{
 
         try {
             //Convert to byte array
             byte[] toSend= SerializeServiceClass.serializeObject(emote);
 
-            this.mBluetoothConnection.write(toSend);
+            BluetoothSharedMemory.mBluetoothConnection.write(toSend, MainActivity.this);
         }catch (IOException ioe)
         {
             throw new EmoteNotSentException("Emote Unable to send ---- "+ioe.getMessage());

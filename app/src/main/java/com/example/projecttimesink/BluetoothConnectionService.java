@@ -377,10 +377,11 @@ public class BluetoothConnectionService {
      * @param out The bytes to write
      * @see ConnectedThread#write(byte[])
      */
-    public void write(byte[] out)
+    public void write(byte[] out, Context newContext)
     {
         //Create temporary object
         //ConnectedThread r;
+        this.context = context;
 
         //Synchronize a copy of the ConnectedThread
         Log.d(TAG, "write: Write called.");

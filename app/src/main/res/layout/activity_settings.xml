@@ -185,10 +185,29 @@
         android:textStyle="bold"
         app:fontFamily="casual"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.825" />
+        app:layout_constraintVertical_bias="0.738" />
+
+    <Button
+        android:id="@+id/bluetoothButton"
+        android:layout_width="350dp"
+        android:layout_height="100dp"
+        android:background="#2196F3"
+        android:gravity="center"
+        android:text="Pair Devices"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:fontFamily="casual"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/logoutButton"
+        app:layout_constraintVertical_bias="0.664" />
+    />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
