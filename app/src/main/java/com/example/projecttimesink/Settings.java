@@ -350,6 +350,8 @@ public class Settings extends AppCompatActivity
         {
             Log.d(TAG, "onClick: starting connection");
             startConnection();
+
+            BluetoothSharedMemory.bluetoothIsConnected = true;
         }
     }
 

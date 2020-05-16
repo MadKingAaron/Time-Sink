@@ -138,4 +138,17 @@
         app:layout_constraintVertical_bias="0.012"
         app:srcCompat="@drawable/trophy" />
 
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="72dp"
+        android:text="Send"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.115"
+        app:layout_constraintStart_toEndOf="@+id/bluetoothButton"
+        app:layout_constraintTop_toBottomOf="@+id/buttonImage"
+        app:layout_constraintVertical_bias="0.013" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

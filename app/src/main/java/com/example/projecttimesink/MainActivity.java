@@ -27,6 +27,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,11 +71,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //TAG for logs
     private final String TAG = "MainActivity";
 
-    private BluetoothMessageReceive bluetoothPackage;
-
     Button bluetoothButton;
 
-    //Button sendButton;
+    Button sendButton;
 
     private boolean bluetoothDevicePaired;
 
@@ -207,22 +206,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
-    //TODO finish broadcast reciever
-    private BroadcastReceiver messageReciever = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //String text = intent.getStringExtra("message");
-
-            String text = intent.getStringExtra("message");
-
-            Log.d(TAG, "Message Recieved: "+ text);
-
-            //TODO finish emote reciever
-            //messages.delete(0, messages.length() - 1);
-
-            //messages.append(text);
-        }
-    };
 
     private void createBluetooth()
     {
@@ -251,22 +234,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         //TODO: Use for debuging of bluetooth message passing
-        /*this.sendButton = (Button) findViewById(R.id.SendButton);
+        this.sendButton = (Button) findViewById(R.id.sendButton);
 
         this.sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mBluetoothConnection.write(new byte[64]);
+                Log.d(TAG, "******Debug*********Sent emote");
+                debugSendEmote();
+
             }
-        });*/
+        });
 
 
         //LocalBroadcastManager.getInstance(this).registerReceiver(this.messageReciever, new IntentFilter(BluetoothConnectionService.BROADCAST_FILTER));
 
 
-        //TODO: Use StringBluetoothPackage for debug and EmoteBluetoothPackage for emotes
+        //TODO: Use StringBluetoothPackage for debug and BluetoothIntegerPackage for emotes
         //this.bluetoothPackage = new StringBluetoothPackage();
-        BluetoothSharedMemory.bluetoothPackage = new EmoteBluetoothPackage();
+        BluetoothSharedMemory.bluetoothPackage = new BluetoothIntegerPackage();
+
+
+        BluetoothSharedMemory.bluetoothIsConnected = false;
+
+
 
 
 
@@ -448,11 +438,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if(BluetoothSharedMemory.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
         {
-            //Used for testing bluetooth
-            //String message = (String) this.bluetoothPackage.getData();
-            //Log.d(TAG, "\t\t\t\t\t Message --- "+message);
+            //TODO: Debug
+            Toast.makeText(MainActivity.this, "Message: "+BluetoothSharedMemory.bluetoothPackage.getData(), Toast.LENGTH_SHORT).show();
+
 
             //TODO: Here is where to write code to display new emote
+
         }
     }
 
@@ -720,21 +711,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //Start connection service
             mBTDevice = mBTDevices.get(deviceIndex);
-            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this, this.bluetoothPackage);
+            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this, BluetoothSharedMemory.bluetoothPackage);
         }
     }
 
     //TODO Use when emotes are implemented to send via bluetooth
     public void sendEmoteViaBluetooth(int emote) throws EmoteNotSentException{
 
-        try {
-            //Convert to byte array
-            byte[] toSend= SerializeServiceClass.serializeObject(emote);
+       if(BluetoothSharedMemory.bluetoothIsConnected)
+       {
+           try {
+               //Convert to byte array
+               String stringToSend = ""+emote;
+               BluetoothSharedMemory.mBluetoothConnection.write(stringToSend.getBytes(), MainActivity.this);
+           }catch (Exception e)
+           {
+               throw new EmoteNotSentException("Emote Unable to send ---- "+e.getMessage());
+           }
+       }
+       else
+       {
+           Toast.makeText(MainActivity.this, "Bluetooth Devices Not Connected", Toast.LENGTH_SHORT);
+       }
+    }
 
-            BluetoothSharedMemory.mBluetoothConnection.write(toSend, MainActivity.this);
-        }catch (IOException ioe)
-        {
-            throw new EmoteNotSentException("Emote Unable to send ---- "+ioe.getMessage());
+
+
+    //TODO: Debug method for testing bluetooth emote message passing
+    public void debugSendEmote()  {
+        try {
+            sendEmoteViaBluetooth(1);
+        } catch (EmoteNotSentException e) {
+            Log.d(TAG, "Failed to send emote "+e.getMessage());
         }
     }
 }
