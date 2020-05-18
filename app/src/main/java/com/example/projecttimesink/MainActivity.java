@@ -19,14 +19,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +38,7 @@ import java.util.UUID;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener
+public class MainActivity extends AppCompatActivity implements SensorEventListener, AdapterView.OnItemSelectedListener
 {
     private final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
     private final Handler handler = new Handler();
@@ -92,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     //CLick sounds
     private MediaPlayer clickMP;
+
+    //Spinner stuff
+    private Spinner emoteSelection;
+    private static final String[] emoteOptions = {"Dab", "Smile", "Taunt", "Good Luck"};
 
     //////////Broadcast Recievers/////////////////////////
     //Create BroadcastReceiver for ACTION_FOUND
@@ -350,6 +358,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         createBluetooth();
         configureAchievementButton();
+
+        emoteSelection = findViewById(R.id.spinner1);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                android.R.layout.simple_spinner_item,emoteOptions);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        emoteSelection.setAdapter(adapter);
+        emoteSelection.setOnItemSelectedListener(this);
+    }
+
+    public void onItemSelected (AdapterView<?> parent, View v, int position, long id){
+
+        switch (position) {
+            case 0:
+                Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_LONG).show();
+                break;
+            case 1:
+                Toast.makeText(MainActivity.this, ":)", Toast.LENGTH_LONG).show();
+                break;
+            case 2:
+                Toast.makeText(MainActivity.this, "Taunt shown", Toast.LENGTH_LONG).show();
+                break;
+            case 3:
+                Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     private void configureAchievementButton()
@@ -503,7 +542,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         return delay;
     }
-
 
 
     ////////////////////Bluetooth Methods///////////////////////////////////////////////
