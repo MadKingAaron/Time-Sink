@@ -275,11 +275,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if(BluetoothSharedMemory.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
         {
             //TODO: Debug
-            Toast.makeText(MainActivity.this, "Message: "+BluetoothSharedMemory.bluetoothPackage.getData(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "Message: "+BluetoothSharedMemory.bluetoothPackage.getData(), Toast.LENGTH_SHORT).show();
 
 
             //TODO: Here is where to write code to display new emote
-
+            displayEmote((Integer) BluetoothSharedMemory.bluetoothPackage.getData());
         }
     }
 
@@ -357,6 +357,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
+    public void displayEmote(int emoteNumber)
+    {
+
+    }
 
     //TODO: Debug method for testing bluetooth emote message passing
     public void debugSendEmote()  {
