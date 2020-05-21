@@ -265,21 +265,21 @@ public class BluetoothConnectionService {
             {
                 //Read from the InputStream
                 try {
-                    bytes = this.bluetoothSocket.getInputStream().read(buffer);
-                    //TODO: Use for debug
-                    //String incomingMessage = new String(buffer, 0, bytes);
+                    Log.d(TAG, "ConnectedThread: write"+" inputStream "+this.inputStream);
+                    bytes = this.inputStream.read(buffer);
 
-                    //
-                    objectInputStream = new ObjectInputStream(this.bluetoothSocket.getInputStream());
-                    EmoteInterface incomingMessage = (EmoteInterface) objectInputStream.readObject();
+                    Log.d(TAG, "ConnectedThread: write"+" read bytes");
 
+                    String incomingMessage = new String(buffer, 0, bytes);
 
-                    //Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
+                    Log.d(TAG, "ConnectedThread: write"+" turned into string");
+                    Integer emote = Integer.parseInt(incomingMessage);
 
+                    Log.d(TAG, "ConnectedThread: InputStream: "+incomingMessage);
 
-                    messagePackage.updateData(incomingMessage);
+                    BluetoothSharedMemory.bluetoothPackage.updateData(emote);
 
-                } catch (IOException | ClassNotFoundException e) {
+                } catch (IOException e) {
                     Log.d(TAG, "ConnectedThread: Issue reading with InputStream "+e.getMessage());
                     break;
                 }
@@ -293,12 +293,12 @@ public class BluetoothConnectionService {
             String text = new String(bytes, Charset.defaultCharset());
             Log.d(TAG, "ConnectedThread: write: Writing to outputstream: "+text);
 
-            bytes = "Hello".getBytes();
+            //bytes = "Hello".getBytes();
 
             Log.d(TAG, "ConnectedThread: write: Byte Arr Length "+ bytes.length);
             try
             {
-                this.bluetoothSocket.getOutputStream().write(bytes);
+                this.outputStream.write(bytes);
                 Log.d(TAG, "ConnectedThread: write: message sent");
             } catch(IOException e)
             {
@@ -377,10 +377,11 @@ public class BluetoothConnectionService {
      * @param out The bytes to write
      * @see ConnectedThread#write(byte[])
      */
-    public void write(byte[] out)
+    public void write(byte[] out, Context newContext)
     {
         //Create temporary object
         //ConnectedThread r;
+        this.context = context;
 
         //Synchronize a copy of the ConnectedThread
         Log.d(TAG, "write: Write called.");

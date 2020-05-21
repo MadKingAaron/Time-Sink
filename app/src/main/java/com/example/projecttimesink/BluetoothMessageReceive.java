@@ -2,7 +2,7 @@ package com.example.projecttimesink;
 
 public interface BluetoothMessageReceive<T> {
 
-    public void updateData(Object newData);
+    public void updateData(T newData);
 
     public T getData();
 

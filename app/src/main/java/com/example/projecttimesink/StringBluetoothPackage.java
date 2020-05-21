@@ -9,7 +9,7 @@ public class StringBluetoothPackage implements BluetoothMessageReceive<String> {
         this.updatedSinceLastCheck = false;
     }
     @Override
-    public void updateData(Object newData) {
+    public void updateData(String newData) {
         this.data = (String) newData;
         this.updatedSinceLastCheck = true;
     }
