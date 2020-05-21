@@ -145,11 +145,14 @@ public class Settings extends AppCompatActivity
 
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra((BluetoothDevice.EXTRA_DEVICE));
-                mBTDevices.add(device);
+
                 Log.d(TAG, "onRecieve: " + device.getName() + ": " + device.getAddress());
-                //mDeviceListAdapter = new DeviceListAdapter(context, R.layout.device_adapter_view, mBTDevices);
-                // lvNewDevices.setAdapter(mDeviceListAdapter);
-                //lvNewDevices.setAdapter(mDeviceListAdapter);
+
+                if(device.getName() != null)
+                {
+                    mBTDevices.add(device);
+                }
+
 
             }
         }
@@ -408,6 +411,9 @@ public class Settings extends AppCompatActivity
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void discoverDevices(View view) {
         Log.d(TAG, "btnDisocver: Looking for unpaired devices");
+
+        //Clear List of Devices
+        this.mBTDevices.clear();
 
         if (mBluetoothAdapter.isDiscovering()) {//Restart discovering
             mBluetoothAdapter.cancelDiscovery();

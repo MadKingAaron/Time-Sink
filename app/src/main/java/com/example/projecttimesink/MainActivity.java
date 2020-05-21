@@ -192,6 +192,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void onItemSelected (AdapterView<?> parent, View v, int position, long id){
 
+        try {
+            sendEmoteViaBluetooth(position);
+        } catch (EmoteNotSentException e) {
+            Log.d(TAG, "Main Activity - OnItemSelected: "+e.getMessage());
+        }
+
+        //String sentMessage = "Sent: ";
         switch (position) {
             case 0:
                 Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_LONG).show();
@@ -387,13 +394,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
        else
        {
            Toast.makeText(MainActivity.this, "Bluetooth Devices Not Connected", Toast.LENGTH_SHORT);
+
+           throw new EmoteNotSentException("Bluetooth Devices Not Connected");
        }
     }
 
 
     public void displayEmote(int emoteNumber)
     {
-
+        switch (emoteNumber) {
+            case 0:
+                Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_LONG).show();
+                break;
+            case 1:
+                Toast.makeText(MainActivity.this, ":)", Toast.LENGTH_LONG).show();
+                break;
+            case 2:
+                Toast.makeText(MainActivity.this, "Taunt shown", Toast.LENGTH_LONG).show();
+                break;
+            case 3:
+                Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_LONG).show();
+                break;
+        }
     }
 
     //TODO: Debug method for testing bluetooth emote message passing
