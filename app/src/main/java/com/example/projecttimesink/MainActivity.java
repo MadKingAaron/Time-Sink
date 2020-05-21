@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //CLick sounds
     private MediaPlayer clickMP;
 
+    private Spinner emoteSelection;
+    private static final String[] emoteOptions = {"Dab", "Smile", "Taunt", "Good Luck"};
 
     private void createBluetooth()
     {
