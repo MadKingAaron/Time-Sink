@@ -522,6 +522,7 @@ public class Settings extends AppCompatActivity
         bluetoothDevicePaired = true;
 
         this.bluetoothButton.setText("Start Connection");
+
     }
 
     private void setPairedBTDevice(int deviceIndex)
