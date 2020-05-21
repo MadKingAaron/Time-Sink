@@ -38,7 +38,7 @@ import java.util.UUID;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, AdapterView.OnItemSelectedListener
+public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
     private final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
     private final Handler handler = new Handler();
@@ -87,6 +87,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private Spinner emoteSelection;
     private static final String[] emoteOptions = {"Dab", "Smile", "Taunt", "Good Luck"};
+
+
+    private Button emoteButton;
 
     private void createBluetooth()
     {
@@ -156,6 +159,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.antiCheatText.setText("");
     }
 
+
+    public void createEmoteSelector()
+    {
+
+
+        this.emoteButton = (Button) findViewById(R.id.emoteButton);
+
+        this.emoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayEmoteSelector();
+            }
+        });
+    }
+
+    public void displayEmoteSelector()
+    {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Emote To Send:");
+
+
+        builder.setItems(emoteOptions, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectEmoteAndSend(which);
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     /*                                                      *\
         SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
     \*                                                      */
@@ -181,17 +218,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         createBluetooth();
         configureAchievementButton();
 
-        emoteSelection = findViewById(R.id.spinner1);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                android.R.layout.simple_spinner_item,emoteOptions);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        emoteSelection.setAdapter(adapter);
-        emoteSelection.setOnItemSelectedListener(this);
+        createEmoteSelector();
     }
 
-    public void onItemSelected (AdapterView<?> parent, View v, int position, long id){
 
+
+    public void selectEmoteAndSend(int position)
+    {
         try {
             sendEmoteViaBluetooth(position);
         } catch (EmoteNotSentException e) {
@@ -215,10 +248,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
 
-    }
 
     private void configureAchievementButton()
     {
