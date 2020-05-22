@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "671406600325",
+    "firebase_url": "https://projecttimesink.firebaseio.com",
+    "project_id": "projecttimesink",
+    "storage_bucket": "projecttimesink.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671406600325:android:8a7014c5e205a375c9b9ec",
+        "android_client_info": {
+          "package_name": "com.example.projecttimesink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "671406600325-r1a8pl0co7904gvne3rfl9d5u7njtcnk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.projecttimesink",
+            "certificate_hash": "1f802ea871efc8b9d413f812f819ac119195f0a0"
+          }
+        },
+        {
+          "client_id": "671406600325-ojse33g2gm242q68i8h0ahh46jovf7ii.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb7rhPmRb1SvXmwDYhVMxoUNpHT1prxNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "671406600325-ojse33g2gm242q68i8h0ahh46jovf7ii.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
