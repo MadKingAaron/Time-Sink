@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Random;
+
 public class Timer implements Actionable
 {
     private long startTime;
@@ -114,6 +116,28 @@ public class Timer implements Actionable
 
     public void createMP ()
     {
-        musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.bennytheme);
+        Random r = new Random();
+        int cap = 6;
+        int result = r.nextInt(cap);
+        switch (result) {
+            case 0:
+                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.bennytheme);
+                break;
+            case 1:
+                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.kahoot);
+                break;
+            case 2:
+                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.elevator);
+                break;
+            case 3:
+                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.guile);
+                break;
+            case 4:
+                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.rocky);
+                break;
+            case 5:
+                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.rickroll);
+                break;
+        }
     }
 }
