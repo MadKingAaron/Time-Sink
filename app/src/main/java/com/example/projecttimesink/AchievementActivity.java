@@ -24,8 +24,6 @@ public class AchievementActivity extends AppCompatActivity
 
     User user;
 
-    //Instead of scrolling, maybe start with a list that doesn't move?
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {

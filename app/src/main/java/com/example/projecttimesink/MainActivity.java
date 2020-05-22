@@ -101,9 +101,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         BluetoothSharedMemory.bluetoothIsConnected = false;
-
-
-
     }
 
     ImageView settingsIcon;
@@ -343,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         {
             this.achievementUnlockedText.setText("");
         }
+
     }
 
     private void updateBluetoothMessage()
