@@ -38,7 +38,7 @@ import java.util.UUID;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, AdapterView.OnItemSelectedListener
+public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
     private final float FRAMES_PER_SECOND = 100; // MAX 1000 (INCLUSIVE), MIN 0 (EXCLUSIVE) FRAMES_PER_SECOND // 0 < FRAMES_PER_SECOND <= 1000
     private final Handler handler = new Handler();
@@ -87,6 +87,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private Spinner emoteSelection;
     private static final String[] emoteOptions = {"Dab", "Smile", "Taunt", "Good Luck"};
+
+
+    private Button emoteButton;
+
+    private ImageView emoteDisplayer;
+
+    private boolean emoteTimerIsRunning = false;
+    private final int MAX_EMOTE_FRAME_TIMER = 200;
+    private int currentEmoteFrameTimer = 0;
 
     private void createBluetooth()
     {
@@ -156,6 +165,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.antiCheatText.setText("");
     }
 
+
+    public void createEmoteSelector()
+    {
+
+
+        this.emoteButton = (Button) findViewById(R.id.emoteButton);
+
+        this.emoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayEmoteSelector();
+            }
+        });
+    }
+
+    public void createEmoteDisplayer()
+    {
+        this.emoteDisplayer = (ImageView) findViewById(R.id.emoteDisplayedIcon);
+
+    }
+
+    public void displayEmoteSelector()
+    {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Emote To Send:");
+
+
+        builder.setItems(emoteOptions, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectEmoteAndSend(which);
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     /*                                                      *\
         SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
     \*                                                      */
@@ -181,37 +230,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         createBluetooth();
         configureAchievementButton();
 
-        emoteSelection = findViewById(R.id.spinner1);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                android.R.layout.simple_spinner_item,emoteOptions);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        emoteSelection.setAdapter(adapter);
-        emoteSelection.setOnItemSelectedListener(this);
+        createEmoteSelector();
+        createEmoteDisplayer();
     }
 
-    public void onItemSelected (AdapterView<?> parent, View v, int position, long id){
 
-        switch (position) {
-            case 0:
-                Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_LONG).show();
-                break;
-            case 1:
-                Toast.makeText(MainActivity.this, ":)", Toast.LENGTH_LONG).show();
-                break;
-            case 2:
-                Toast.makeText(MainActivity.this, "Taunt shown", Toast.LENGTH_LONG).show();
-                break;
-            case 3:
-                Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_LONG).show();
-                break;
+
+    public void selectEmoteAndSend(int position)
+    {
+        try {
+            sendEmoteViaBluetooth(position);
+        } catch (EmoteNotSentException e) {
+            Log.d(TAG, "Main Activity - OnItemSelected: "+e.getMessage());
         }
+
+        logEmoteSelected(position);
+        displayEmote(position);
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
 
-    }
 
     private void configureAchievementButton()
     {
@@ -302,6 +339,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         updateBluetoothMessage();
+
+        this.checkEmoteTimer();
+
+    }
+
+
+    private void checkEmoteTimer()
+    {
+        if(this.emoteTimerIsRunning)
+        {
+            if(this.currentEmoteFrameTimer >= this.MAX_EMOTE_FRAME_TIMER)
+            {
+                this.setEmoteImageToBlank();
+
+                this.emoteTimerIsRunning = false;
+
+                this.currentEmoteFrameTimer = 0;
+            }
+            else
+            {
+                this.currentEmoteFrameTimer++;
+            }
+        }
+    }
+
+    private void setEmoteImageToBlank()
+    {
+        this.emoteDisplayer.setVisibility(View.INVISIBLE);
     }
 
     private void updateBluetoothMessage()
@@ -314,7 +379,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
             //TODO: Here is where to write code to display new emote
-            displayEmote((Integer) BluetoothSharedMemory.bluetoothPackage.getData());
+            //displayEmote((Integer) BluetoothSharedMemory.bluetoothPackage.getData());
+            Log.d(TAG,"updateBluetooth: "+ BluetoothSharedMemory.bluetoothPackage.getData());
+            displayEmote(0);
         }
     }
 
@@ -373,27 +440,91 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //TODO Use when emotes are implemented to send via bluetooth
     public void sendEmoteViaBluetooth(int emote) throws EmoteNotSentException{
 
-       if(BluetoothSharedMemory.bluetoothIsConnected)
-       {
-           try {
-               //Convert to byte array
-               String stringToSend = ""+emote;
-               BluetoothSharedMemory.mBluetoothConnection.write(stringToSend.getBytes(), MainActivity.this);
-           }catch (Exception e)
-           {
-               throw new EmoteNotSentException("Emote Unable to send ---- "+e.getMessage());
-           }
-       }
-       else
-       {
-           Toast.makeText(MainActivity.this, "Bluetooth Devices Not Connected", Toast.LENGTH_SHORT);
-       }
+        if(BluetoothSharedMemory.bluetoothIsConnected)
+        {
+            try {
+                //Convert to byte array
+                String stringToSend = ""+emote;
+                BluetoothSharedMemory.mBluetoothConnection.write(stringToSend.getBytes(), MainActivity.this);
+
+                displayEmoteSent(emote);
+            }catch (Exception e)
+            {
+                throw new EmoteNotSentException("Emote Unable to send ---- "+e.getMessage());
+            }
+        }
+        else
+        {
+            Toast.makeText(MainActivity.this, "Bluetooth Devices Not Connected", Toast.LENGTH_SHORT);
+
+            throw new EmoteNotSentException("Bluetooth Devices Not Connected");
+        }
     }
 
 
     public void displayEmote(int emoteNumber)
     {
 
+        this.emoteTimerIsRunning = true;
+        switch (emoteNumber) {
+            case 0:
+                Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_SHORT).show();
+                //this.emoteDisplayer.setImageResource(R.drawable.sanic_dab);
+                this.emoteDisplayer.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                Toast.makeText(MainActivity.this, ":)", Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+                Toast.makeText(MainActivity.this, "Taunt shown", Toast.LENGTH_SHORT).show();
+                break;
+            case 3:
+                Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_SHORT).show();
+                //this.emoteDisplayer.setImageResource(R.drawable.handshake);
+                this.emoteDisplayer.setVisibility(View.VISIBLE);
+
+                break;
+        }
+    }
+
+    public void displayEmoteSent(int emoteNumber)
+    {
+
+        String sent = "Sent: ";
+        switch (emoteNumber) {
+            case 0:
+                Toast.makeText(MainActivity.this, sent+"Dab on them fools", Toast.LENGTH_SHORT).show();
+
+                break;
+            case 1:
+                Toast.makeText(MainActivity.this, sent+":)", Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+                Toast.makeText(MainActivity.this, sent+"Taunt shown", Toast.LENGTH_SHORT).show();
+                break;
+            case 3:
+                Toast.makeText(MainActivity.this, sent+"Good Luck!", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+    public void logEmoteSelected(int emoteNumber)
+    {
+        String logEmote = "MainActivity: logEmoteSelected: ";
+        switch (emoteNumber) {
+            case 0:
+                Log.d(TAG,logEmote+"Dab on them fools");
+                break;
+            case 1:
+                Log.d(TAG, logEmote+":)");
+                break;
+            case 2:
+                Log.d(TAG, logEmote+"Taunt shown");
+                break;
+            case 3:
+                Log.d(TAG, logEmote+"Good Luck!");
+                break;
+        }
     }
 
     //TODO: Debug method for testing bluetooth emote message passing
