@@ -484,15 +484,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
 
         if(BluetoothSharedMemory.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
-        {
-            //TODO: Debug
-            //Toast.makeText(MainActivity.this, "Message: "+BluetoothSharedMemory.bluetoothPackage.getData(), Toast.LENGTH_SHORT).show();
-
-
-            //TODO: Here is where to write code to display new emote
-            //displayEmote((Integer) BluetoothSharedMemory.bluetoothPackage.getData());
-            Log.d(TAG,"updateBluetooth: "+ BluetoothSharedMemory.bluetoothPackage.getData());
-            displayEmote(0);
+        
+            displayEmote((Integer) BluetoothSharedMemory.bluetoothPackage.getData());
         }
     }
 
