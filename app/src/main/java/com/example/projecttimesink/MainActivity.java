@@ -79,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Button sendButton;
 
+    private AchievementMessageVerification messageVerification;
+
 
     private static final UUID UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
@@ -115,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     ImageView settingsIcon;
     Button settingsButton;
+    ImageView achievementIcon;
+    Button achievementButton;
     SwitchButton settingsSwitchButton;
 
     FirebaseAuth firebaseAuth;
@@ -131,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.settingsIcon = (ImageView) findViewById(R.id.settingsIcon);
         this.settingsButton = (Button) findViewById(R.id.settingsButton);
+        this.achievementIcon=(ImageView) findViewById(R.id.achievementIcon);
+        this.achievementButton=(Button) findViewById(R.id.achievementButton);
 
         this.firebaseAuth = FirebaseAuth.getInstance();
 
@@ -226,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.actionableObjects = this.actionableList.toArray();
 
+        messageVerification=new AchievementMessageVerification();
 
         createBluetooth();
         configureAchievementButton();
@@ -324,6 +331,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.INVISIBLE);
             this.settingsButton.setEnabled(false);
+            this.achievementButton.setEnabled(false);
+            this.achievementIcon.setVisibility(View.INVISIBLE);
         }
 
         if(!this.timerStopped && this.timerStarted && !this.timer.isRunning())
@@ -335,6 +344,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.VISIBLE);
             this.settingsButton.setEnabled(true);
+            this.achievementButton.setEnabled(true);
+            this.achievementIcon.setVisibility(View.VISIBLE);
         }
 
 
