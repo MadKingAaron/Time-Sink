@@ -163,18 +163,30 @@
         app:layout_constraintVertical_bias="0.642"
         app:srcCompat="@drawable/emote_icon" />
 
+<!--    <ImageView-->
+<!--    android:id="@+id/emoteDisplayedIcon"-->
+<!--    android:layout_width="150dp"-->
+<!--    android:layout_height="150dp"-->
+<!--    android:contentDescription="Emote Displayed"-->
+<!--    android:visibility="invisible"-->
+<!--    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--    app:layout_constraintHorizontal_bias="0.05"-->
+<!--    app:layout_constraintLeft_toLeftOf="parent"-->
+<!--    app:layout_constraintRight_toRightOf="parent"-->
+<!--    app:layout_constraintTop_toTopOf="parent"-->
+<!--    app:layout_constraintVertical_bias="0.01"/>-->
+
     <ImageView
         android:id="@+id/emoteDisplayedIcon"
-        android:layout_width="153dp"
-        android:layout_height="145dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:contentDescription="Emote Displayed"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.838"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/emoteIcon"
-        app:layout_constraintTop_toBottomOf="@id/buttonImage"
-        app:layout_constraintVertical_bias="0.32"
-        />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.175" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
