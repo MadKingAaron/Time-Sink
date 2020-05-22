@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
@@ -74,6 +75,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //TAG for logs
     private final String TAG = "MainActivity";
 
+    Database database;
+    String userID;
+    long longestTimeWasted;
+    User user;
 
     private BluetoothAdapter mBluetoothAdapter;
 
@@ -211,6 +216,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         dialog.show();
     }
 
+    private void readUser()
+    {
+        if(this.userID==null)
+        {
+            return;
+        }
+        this.database.readUser(this.userID, new Database.OnGetDataListener()
+        {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot)
+            {
+                user = dataSnapshot.getValue(User.class);
+                longestTimeWasted=user.longestTimeWasted;
+
+            }
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+    }
+
     /*                                                      *\
         SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
     \*                                                      */
@@ -239,6 +272,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         createEmoteSelector();
         createEmoteDisplayer();
+        this.database=new Database();
+        this.userID=firebaseAuth.getCurrentUser().getUid();
+        readUser();
     }
 
 
