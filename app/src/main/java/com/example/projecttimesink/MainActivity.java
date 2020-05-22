@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ImageView emoteDisplayer;
 
     private boolean emoteTimerIsRunning = false;
-    private final int MAX_EMOTE_FRAME_TIMER = 200;
+    private final int MAX_EMOTE_FRAME_TIMER = 150;
     private int currentEmoteFrameTimer = 0;
 
     private TextView achievementUnlockText;
@@ -575,27 +575,166 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void displayEmote(int emoteNumber)
     {
-
         this.emoteTimerIsRunning = true;
         switch (emoteNumber) {
             case 0:
-                Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_SHORT).show();
-                //this.emoteDisplayer.setImageResource(R.drawable.sanic_dab);
-                this.emoteDisplayer.setVisibility(View.VISIBLE);
+                dab();
                 break;
             case 1:
-                Toast.makeText(MainActivity.this, ":)", Toast.LENGTH_SHORT).show();
+                smile();
                 break;
             case 2:
-                Toast.makeText(MainActivity.this, "Taunt shown", Toast.LENGTH_SHORT).show();
+                taunt();
                 break;
             case 3:
-                Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_SHORT).show();
-                //this.emoteDisplayer.setImageResource(R.drawable.handshake);
-                this.emoteDisplayer.setVisibility(View.VISIBLE);
-
+                goodLuck();
                 break;
         }
+    }
+
+    private void dab()
+    {
+//        Toast.makeText(MainActivity.this, "Dab on them fools", Toast.LENGTH_SHORT).show();
+
+        double rand = Math.random();
+
+        if(rand <= 0.15)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.sans_foreground);
+        }
+        else if(rand <= 0.3)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.squidward_foreground);
+        }
+        else if(rand <= 0.45)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.roblox_foreground);
+        }
+        else if(rand <= 0.60)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.luigi_foreground);
+        }
+        else if(rand <= 0.75)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.panda_foreground);
+        }
+        else if(rand <= 0.9)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.grandma_foreground);
+        }
+        else
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.sanic_foreground);
+        }
+
+        updateEmoteData();
+    }
+
+    private void smile()
+    {
+//        Toast.makeText(MainActivity.this, ":)", Toast.LENGTH_SHORT).show();
+        double rand = Math.random();
+
+        if(rand <= 0.25)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.smiley_foreground);
+        }
+        else if(rand <= 0.5)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.harold_foreground);
+        }
+        else if(rand <= 0.75)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.nyan_cat_foreground);
+        }
+        else
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.nyan_cat_foreground);
+        }
+
+        updateEmoteData();
+    }
+
+    private void taunt()
+    {
+//        Toast.makeText(MainActivity.this, "Taunt shown", Toast.LENGTH_SHORT).show();
+
+        double rand = Math.random();
+
+        if(rand <= 0.15)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.shrek_foreground);
+        }
+        else if(rand <= 0.3)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.troll_foreground);
+        }
+        else if(rand <= 0.4)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.tauntface_foreground);
+        }
+        else if(rand <= 0.5)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.roll_safe_foreground);
+        }
+        else if(rand <= 0.6)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.jake_foreground);
+        }
+        else if(rand <= 0.7)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.dat_boi_foreground);
+        }
+        else if(rand <= 0.8)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.deal_with_it_foreground);
+        }
+        else if(rand <= 0.9)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.u_mad_bro_foreground);
+        }
+        else
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.laughing_foreground);
+        }
+
+        updateEmoteData();
+    }
+
+    private void goodLuck()
+    {
+        Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_SHORT).show();
+
+        double rand = Math.random();
+
+        if(rand <= 0.3)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.handshake_foreground);
+        }
+        else if(rand <= 0.55)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.good_luck_have_fun_foreground);
+        }
+        else if(rand <= 0.8)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.good_luck3_foreground);
+        }
+        else if(rand <= 0.95)
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.good_luck1_foreground);
+        }
+        else
+        {
+            this.emoteDisplayer.setImageResource(R.mipmap.good_luck2_foreground);
+        }
+
+        updateEmoteData();
+    }
+
+    private void updateEmoteData()
+    {
+        this.currentEmoteFrameTimer = 0;
+        this.emoteDisplayer.setVisibility(View.VISIBLE);
     }
 
     public void displayEmoteSent(int emoteNumber)
@@ -605,7 +744,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         switch (emoteNumber) {
             case 0:
                 Toast.makeText(MainActivity.this, sent+"Dab on them fools", Toast.LENGTH_SHORT).show();
-
                 break;
             case 1:
                 Toast.makeText(MainActivity.this, sent+":)", Toast.LENGTH_SHORT).show();
