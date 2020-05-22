@@ -649,7 +649,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         else
         {
-            this.emoteDisplayer.setImageResource(R.mipmap.nyan_cat_foreground);
+            this.emoteDisplayer.setImageResource(R.mipmap.doge_foreground);
         }
 
         updateEmoteData();
