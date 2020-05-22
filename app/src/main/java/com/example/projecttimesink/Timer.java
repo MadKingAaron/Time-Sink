@@ -1,14 +1,11 @@
 package com.example.projecttimesink;
 
-import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.Random;
 
 public class Timer implements Actionable
 {
@@ -20,13 +17,15 @@ public class Timer implements Actionable
     private ImageView buttonImage;
     private Button theButton;
 
-    private MediaPlayer musicMP;
+    private Music music;
 
     public Timer(TextView timerText, ImageView buttonImage, Button theButton)
     {
         this.timeText = new TimeText(timerText, (this.totalTime = 0));
         this.buttonImage = buttonImage;
         this.theButton = theButton;
+
+        this.music = new Music();
 
         this.theButton.setOnTouchListener(new View.OnTouchListener()
         {
@@ -36,13 +35,11 @@ public class Timer implements Actionable
                 // start
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     startTimer();
-                    createMP();
-                    musicMP.start();
+
                 }
                     // stop
                 else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     stopTimer();
-                    musicMP.release();
                 }
 
 
@@ -82,6 +79,7 @@ public class Timer implements Actionable
         this.startTime = getCurrentTime();
         this.timerIsRunning = true;
         this.buttonImage.setImageResource(R.drawable.button_pressed_foreground);
+        this.music.start();
     }
 
     protected void updateTimer()
@@ -96,6 +94,7 @@ public class Timer implements Actionable
         this.totalTime = getCurrentTime() - this.startTime;
         this.timerIsRunning = false;
         this.buttonImage.setImageResource(R.drawable.button_unpressed_foreground);
+        this.music.stop();
     }
 
     public long getTotalTime()
@@ -112,32 +111,5 @@ public class Timer implements Actionable
     private void resetTimer()
     {
         setTimer(this.totalTime = 0);
-    }
-
-    public void createMP ()
-    {
-        Random r = new Random();
-        int cap = 6;
-        int result = r.nextInt(cap);
-        switch (result) {
-            case 0:
-                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.bennytheme);
-                break;
-            case 1:
-                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.kahoot);
-                break;
-            case 2:
-                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.elevator);
-                break;
-            case 3:
-                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.guile);
-                break;
-            case 4:
-                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.rocky);
-                break;
-            case 5:
-                musicMP = MediaPlayer.create(MyApplication.getAppContext(), R.raw.rickroll);
-                break;
-        }
     }
 }
