@@ -8,6 +8,8 @@ import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 public class LeaderboardActivity extends AppCompatActivity
@@ -21,6 +23,10 @@ public class LeaderboardActivity extends AppCompatActivity
 
     ProgressBar progressBar;
 
+    FirebaseAuth firebaseAuth;
+
+    String userID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -32,6 +38,13 @@ public class LeaderboardActivity extends AppCompatActivity
         this.switchButton = new SwitchButton(this, MainActivity.class, (Button) findViewById(R.id.restartButton));
 
         this.progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        this.firebaseAuth = FirebaseAuth.getInstance();
+
+        if(this.firebaseAuth.getCurrentUser() != null)
+            this.userID = firebaseAuth.getCurrentUser().getUid();
+        else
+            this.userID = null;
 
         this.recyclerView = findViewById(R.id.recyclerView);
         this.database.readLeaderboardIDs(new Database.UserIDDataStatus()
@@ -46,7 +59,7 @@ public class LeaderboardActivity extends AppCompatActivity
                     public void DataIsLoaded(User[] users, String[] keys)
                     {
                         progressBar.setVisibility(View.GONE);
-                        new RecyclerView_Config().setConfig(recyclerView, LeaderboardActivity.this, users, keys);
+                        new RecyclerView_Config().setConfig(recyclerView, LeaderboardActivity.this, users, keys, userID);
                     }
 
                     @Override
