@@ -421,6 +421,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //Toast.makeText(MainActivity.this,"Achievement 1 unlocked",Toast.LENGTH_SHORT).show();
             this.achievementUnlockText.setText("Achievement 1 unlocked");
         }
+        else if(numberOfAchievementsUnlocked==2&&this.currentTime<64000)
+        {
+            this.achievementUnlockText.setText("Achievement 2 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==3&&this.currentTime<(60000*5)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 3 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==4&&this.currentTime<(60000*10)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 4 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==5&&this.currentTime<(60000*30)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 5 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==6&&this.currentTime<(60000*60)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 6 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==7&&this.currentTime<((60000*60)*12)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 7 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==8&&this.currentTime<((60000*60)*24)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 8 unlocked");
+        }
         else
         {
             this.achievementUnlockText.setText("");
