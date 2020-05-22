@@ -3,7 +3,7 @@ package com.example.projecttimesink;
 public class AchievementMessageVerification
 {
     public long currentTime;
-
+    public long longestTime;
     private int numberOfTimeBasedAchievementsUnlocked;
 
     private long oneSecond=1000;
@@ -11,15 +11,18 @@ public class AchievementMessageVerification
 
     private void determineNumberOfTimeBasedAchievementsUnlocked()
     {
+        if(this.currentTime>this.longestTime)
+        {
+            checkFirst();
+            checkSecond();
+            checkThird();
+            checkFourth();
+            checkFifth();
+            checkSixth();
+            checkSeventh();
+            checkEight();
+        }
 
-        checkFirst();
-        checkSecond();
-        checkThird();
-        checkFourth();
-        checkFifth();
-        checkSixth();
-        checkSeventh();
-        checkEight();
     }
 
     private void checkFirst()
@@ -32,7 +35,7 @@ public class AchievementMessageVerification
 
     private void checkSecond()
     {
-        if(this.currentTime>=oneMinute&&this.currentTime<(oneMinute*5))
+        if(this.currentTime>=oneMinute)
         {
             numberOfTimeBasedAchievementsUnlocked=2;
         }

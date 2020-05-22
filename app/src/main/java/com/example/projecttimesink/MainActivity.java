@@ -273,7 +273,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         createEmoteSelector();
         createEmoteDisplayer();
         this.database=new Database();
-        this.userID=firebaseAuth.getCurrentUser().getUid();
+        if(firebaseAuth.getCurrentUser()!=null)
+        {
+            this.userID=firebaseAuth.getCurrentUser().getUid();
+        }
+
         readUser();
     }
 
@@ -296,14 +300,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void configureAchievementButton()
     {
         Button achievementButton=(Button) findViewById(R.id.achievementButton);
-        achievementButton.setOnClickListener(new View.OnClickListener()
+        if(firebaseAuth.getCurrentUser()!=null)
         {
-            @Override
-            public void onClick(View view)
+            achievementButton.setOnClickListener(new View.OnClickListener()
             {
-                startActivity(new Intent(MainActivity.this, AchievementActivity.class));
-            }
-        });
+                @Override
+                public void onClick(View view)
+                {
+                    startActivity(new Intent(MainActivity.this, AchievementActivity.class));
+                }
+            });
+        }
+        else
+        {
+            achievementButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"Please log in/register in settings to view achievements",Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
 
     @Override
@@ -388,9 +405,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         updateBluetoothMessage();
 
         this.checkEmoteTimer();
-
+        updateAchievementMessage();
     }
 
+    private void updateAchievementMessage()
+    {
+        this.messageVerification.currentTime=this.currentTime;
+        this.messageVerification.longestTime=this.longestTimeWasted;
+        int numberOfAchievementsUnlocked=this.messageVerification.getNumberOfTimeBasedAchievementsUnlocked();
+        if(numberOfAchievementsUnlocked==1&&this.currentTime>4000)
+        {
+            Toast.makeText(MainActivity.this,"Achievement 1 unlocked",Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void checkEmoteTimer()
     {
