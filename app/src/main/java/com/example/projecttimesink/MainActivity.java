@@ -480,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 break;
             case 3:
                 Toast.makeText(MainActivity.this, "Good Luck!", Toast.LENGTH_SHORT).show();
-                this.emoteDisplayer.setImageResource(R.drawable.handshake);
+                //this.emoteDisplayer.setImageResource(R.drawable.handshake);
                 this.emoteDisplayer.setVisibility(View.VISIBLE);
 
                 break;
