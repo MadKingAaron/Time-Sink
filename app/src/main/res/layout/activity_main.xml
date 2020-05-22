@@ -141,7 +141,7 @@
         android:id="@+id/emoteIcon"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:contentDescription="Settings"
+        android:contentDescription="Emote Selection Icon"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.945"
@@ -150,5 +150,19 @@
         app:layout_constraintTop_toBottomOf="@id/buttonImage"
         app:layout_constraintVertical_bias="0.642"
         app:srcCompat="@drawable/emote_icon" />
+
+    <ImageView
+        android:id="@+id/emoteDisplayedIcon"
+        android:layout_width="153dp"
+        android:layout_height="145dp"
+        android:contentDescription="Emote Displayed"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.838"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/emoteIcon"
+        app:layout_constraintTop_toBottomOf="@id/buttonImage"
+        app:layout_constraintVertical_bias="0.32"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
