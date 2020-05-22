@@ -484,6 +484,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
 
         if(BluetoothSharedMemory.bluetoothPackage.checkIfDataUpdatedSinceLastCall())
+        {
         
             displayEmote((Integer) BluetoothSharedMemory.bluetoothPackage.getData());
         }
