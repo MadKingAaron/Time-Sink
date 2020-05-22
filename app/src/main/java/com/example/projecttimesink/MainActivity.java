@@ -104,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final int MAX_EMOTE_FRAME_TIMER = 200;
     private int currentEmoteFrameTimer = 0;
 
+    private TextView achievementUnlockText;
+
     private void createBluetooth()
     {
 
@@ -279,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         readUser();
+        this.achievementUnlockText=(TextView)findViewById(R.id.achievementUnlockText);
     }
 
 
@@ -413,10 +416,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.messageVerification.currentTime=this.currentTime;
         this.messageVerification.longestTime=this.longestTimeWasted;
         int numberOfAchievementsUnlocked=this.messageVerification.getNumberOfTimeBasedAchievementsUnlocked();
-        if(numberOfAchievementsUnlocked==1&&this.currentTime>4000)
+        if(numberOfAchievementsUnlocked==1&&this.currentTime<4000)
         {
-            Toast.makeText(MainActivity.this,"Achievement 1 unlocked",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this,"Achievement 1 unlocked",Toast.LENGTH_SHORT).show();
+            this.achievementUnlockText.setText("Achievement 1 unlocked");
         }
+        else
+        {
+            this.achievementUnlockText.setText("");
+        }
+
     }
 
     private void checkEmoteTimer()

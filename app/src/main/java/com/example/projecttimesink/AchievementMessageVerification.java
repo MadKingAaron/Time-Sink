@@ -22,7 +22,10 @@ public class AchievementMessageVerification
             checkSeventh();
             checkEight();
         }
-
+        else
+        {
+            this.numberOfTimeBasedAchievementsUnlocked=0;
+        }
     }
 
     private void checkFirst()
