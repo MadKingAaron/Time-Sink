@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //TAG for logs
     private final String TAG = "MainActivity";
 
+    AchievementMessageVerification achievementMessageVerification;
+    TextView achievementUnlockedText;
 
     private BluetoothAdapter mBluetoothAdapter;
 
@@ -161,6 +163,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.antiCheatText.setText("");
     }
 
+    private void createAchievementMessageVerification()
+    {
+        this.achievementMessageVerification=new AchievementMessageVerification();
+        this.achievementUnlockedText=(TextView) findViewById(R.id.achievementUnlocked);
+    }
+
     /*                                                      *\
         SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
     \*                                                      */
@@ -193,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         emoteSelection.setAdapter(adapter);
         emoteSelection.setOnItemSelectedListener(this);
+        createAchievementMessageVerification();
     }
 
     public void onItemSelected (AdapterView<?> parent, View v, int position, long id){
@@ -311,6 +320,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         updateBluetoothMessage();
+        updateAchievementMessage();
+    }
+
+    private void updateAchievementMessage()
+    {
+        this.achievementMessageVerification.currentTime=this.currentTime;
+        int numberOfAchievementsUnlocked=this.achievementMessageVerification.getNumberOfTimeBasedAchievementsUnlocked();
+        if(numberOfAchievementsUnlocked==1&&this.currentTime<4000)
+        {
+            this.achievementUnlockedText.setText("Achievement 1 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==2&&this.currentTime<64000)
+        {
+            this.achievementUnlockedText.setText("Achievement 2 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==3&&this.currentTime<(60000*5)+4000)
+        {
+            this.achievementUnlockedText.setText("Achievement 3 unlocked");
+        }
+        else
+        {
+            this.achievementUnlockedText.setText("");
+        }
     }
 
     private void updateBluetoothMessage()
