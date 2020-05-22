@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener
 {
@@ -74,10 +75,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //TAG for logs
     private final String TAG = "MainActivity";
 
+    Database database;
+    String userID;
+    long longestTimeWasted;
+    User user;
 
     private BluetoothAdapter mBluetoothAdapter;
 
     Button sendButton;
+
+    private AchievementMessageVerification messageVerification;
 
 
     private static final UUID UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
@@ -97,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final int MAX_EMOTE_FRAME_TIMER = 200;
     private int currentEmoteFrameTimer = 0;
 
+    private TextView achievementUnlockText;
+
     private void createBluetooth()
     {
 
@@ -115,6 +124,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     ImageView settingsIcon;
     Button settingsButton;
+    ImageView achievementIcon;
+    Button achievementButton;
     SwitchButton settingsSwitchButton;
 
     FirebaseAuth firebaseAuth;
@@ -131,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.settingsIcon = (ImageView) findViewById(R.id.settingsIcon);
         this.settingsButton = (Button) findViewById(R.id.settingsButton);
+        this.achievementIcon=(ImageView) findViewById(R.id.achievementIcon);
+        this.achievementButton=(Button) findViewById(R.id.achievementButton);
 
         this.firebaseAuth = FirebaseAuth.getInstance();
 
@@ -205,6 +218,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         dialog.show();
     }
 
+    private void readUser()
+    {
+        if(this.userID==null)
+        {
+            return;
+        }
+        this.database.readUser(this.userID, new Database.OnGetDataListener()
+        {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot)
+            {
+                user = dataSnapshot.getValue(User.class);
+                longestTimeWasted=user.longestTimeWasted;
+
+            }
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+    }
+
     /*                                                      *\
         SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS POINT
     \*                                                      */
@@ -226,12 +267,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.actionableObjects = this.actionableList.toArray();
 
+        messageVerification=new AchievementMessageVerification();
 
         createBluetooth();
         configureAchievementButton();
 
         createEmoteSelector();
         createEmoteDisplayer();
+        this.database=new Database();
+        if(firebaseAuth.getCurrentUser()!=null)
+        {
+            this.userID=firebaseAuth.getCurrentUser().getUid();
+        }
+
+        readUser();
+        this.achievementUnlockText=(TextView)findViewById(R.id.achievementUnlockText);
     }
 
 
@@ -253,14 +303,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void configureAchievementButton()
     {
         Button achievementButton=(Button) findViewById(R.id.achievementButton);
-        achievementButton.setOnClickListener(new View.OnClickListener()
+        if(firebaseAuth.getCurrentUser()!=null)
         {
-            @Override
-            public void onClick(View view)
+            achievementButton.setOnClickListener(new View.OnClickListener()
             {
-                startActivity(new Intent(MainActivity.this, AchievementActivity.class));
-            }
-        });
+                @Override
+                public void onClick(View view)
+                {
+                    startActivity(new Intent(MainActivity.this, AchievementActivity.class));
+                }
+            });
+        }
+        else
+        {
+            achievementButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"Please log in/register in settings to view achievements",Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
 
     @Override
@@ -324,6 +387,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.INVISIBLE);
             this.settingsButton.setEnabled(false);
+            this.achievementButton.setEnabled(false);
+            this.achievementIcon.setVisibility(View.INVISIBLE);
         }
 
         if(!this.timerStopped && this.timerStarted && !this.timer.isRunning())
@@ -335,15 +400,61 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.VISIBLE);
             this.settingsButton.setEnabled(true);
+            this.achievementButton.setEnabled(true);
+            this.achievementIcon.setVisibility(View.VISIBLE);
         }
 
 
         updateBluetoothMessage();
 
         this.checkEmoteTimer();
-
+        updateAchievementMessage();
     }
 
+    private void updateAchievementMessage()
+    {
+        this.messageVerification.currentTime=this.currentTime;
+        this.messageVerification.longestTime=this.longestTimeWasted;
+        int numberOfAchievementsUnlocked=this.messageVerification.getNumberOfTimeBasedAchievementsUnlocked();
+        if(numberOfAchievementsUnlocked==1&&this.currentTime<4000)
+        {
+            //Toast.makeText(MainActivity.this,"Achievement 1 unlocked",Toast.LENGTH_SHORT).show();
+            this.achievementUnlockText.setText("Achievement 1 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==2&&this.currentTime<64000)
+        {
+            this.achievementUnlockText.setText("Achievement 2 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==3&&this.currentTime<(60000*5)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 3 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==4&&this.currentTime<(60000*10)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 4 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==5&&this.currentTime<(60000*30)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 5 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==6&&this.currentTime<(60000*60)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 6 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==7&&this.currentTime<((60000*60)*12)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 7 unlocked");
+        }
+        else if(numberOfAchievementsUnlocked==8&&this.currentTime<((60000*60)*24)+4000)
+        {
+            this.achievementUnlockText.setText("Achievement 8 unlocked");
+        }
+        else
+        {
+            this.achievementUnlockText.setText("");
+        }
+
+    }
 
     private void checkEmoteTimer()
     {

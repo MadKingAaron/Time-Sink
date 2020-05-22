@@ -21,6 +21,11 @@ public class AchievementActivity extends AppCompatActivity
     ImageView achievementOne;
     ImageView achievementTwo;
     ImageView achievementThree;
+    ImageView achievementFour;
+    ImageView achievementFive;
+    ImageView achievementSix;
+    ImageView achievementSeven;
+    ImageView achievementEight;
 
     User user;
 
@@ -31,7 +36,6 @@ public class AchievementActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievement);
-        configureBackButton();
 
         this.time=0;
         this.database=new Database();
@@ -40,6 +44,11 @@ public class AchievementActivity extends AppCompatActivity
         achievementOne=(ImageView) findViewById(R.id.greenOne);
         achievementTwo=(ImageView) findViewById(R.id.greenTwo);
         achievementThree=(ImageView) findViewById(R.id.greenThree);
+        achievementFour=(ImageView) findViewById(R.id.greenFour);
+        achievementFive=(ImageView) findViewById(R.id.greenFive);
+        achievementSix=(ImageView) findViewById(R.id.greenSix);
+        achievementSeven=(ImageView) findViewById(R.id.greenSeven);
+        achievementEight=(ImageView) findViewById(R.id.greenEight);
         this.database.readUser(this.userID, new Database.OnGetDataListener()
         {
             @Override
@@ -65,19 +74,6 @@ public class AchievementActivity extends AppCompatActivity
 
     }
 
-    private void configureBackButton()
-    {
-        Button backButton=(Button) findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                finish();
-            }
-        });
-    }
-
     private void setGreen(int numberOfAchievementsUnlocked)
     {
         if(numberOfAchievementsUnlocked==1)
@@ -94,6 +90,51 @@ public class AchievementActivity extends AppCompatActivity
             achievementOne.setVisibility(View.VISIBLE);
             achievementTwo.setVisibility(View.VISIBLE);
             achievementThree.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==4)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+            achievementThree.setVisibility(View.VISIBLE);
+            achievementFour.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==5)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+            achievementThree.setVisibility(View.VISIBLE);
+            achievementFour.setVisibility(View.VISIBLE);
+            achievementFive.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==6)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+            achievementThree.setVisibility(View.VISIBLE);
+            achievementFour.setVisibility(View.VISIBLE);
+            achievementFive.setVisibility(View.VISIBLE);
+            achievementSix.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==7)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+            achievementThree.setVisibility(View.VISIBLE);
+            achievementFour.setVisibility(View.VISIBLE);
+            achievementFive.setVisibility(View.VISIBLE);
+            achievementSix.setVisibility(View.VISIBLE);
+            achievementSeven.setVisibility(View.VISIBLE);
+        }
+        else if(numberOfAchievementsUnlocked==8)
+        {
+            achievementOne.setVisibility(View.VISIBLE);
+            achievementTwo.setVisibility(View.VISIBLE);
+            achievementThree.setVisibility(View.VISIBLE);
+            achievementFour.setVisibility(View.VISIBLE);
+            achievementFive.setVisibility(View.VISIBLE);
+            achievementSix.setVisibility(View.VISIBLE);
+            achievementSeven.setVisibility(View.VISIBLE);
+            achievementEight.setVisibility(View.VISIBLE);
         }
     }
 }
