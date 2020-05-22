@@ -1,6 +1,7 @@
 package com.example.projecttimesink;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -15,11 +16,12 @@ public class RecyclerView_Config
 {
     private Context context;
     private UserAdapter userAdapter;
+    private Typeface normalTypeface = Typeface.create("casual", Typeface.NORMAL);
 
-    public void setConfig(RecyclerView recyclerView, Context context, User[] users, String[] keys)
+    public void setConfig(RecyclerView recyclerView, Context context, User[] users, String[] keys, String userID)
     {
         this.context = context;
-        this.userAdapter = new UserAdapter(users, keys);
+        this.userAdapter = new UserAdapter(users, keys, userID);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(this.userAdapter);
     }
@@ -39,11 +41,33 @@ public class RecyclerView_Config
             this.time_textView = itemView.findViewById(R.id.time_textView);
         }
 
-        public void bind(User user, String key, int placement)
+        public void bind(User user, String key, int placement, String userID)
         {
-            this.username_textView.setText(placement + ") " + user.username);
-            this.time_textView.setText(TimeText.getTimeString(user.longestTimeWasted, 1));
+            String username = user.username;
+
+            if(username.length() > 20)
+                username = username.substring(0, 20) + "...";
+
+            this.username_textView.setText(placement + ") " + username);
+            this.time_textView.setText(TimeText.getTimeString(user.longestTimeWasted, 0));
             this.key = key;
+
+            if(key.equals(userID))
+                userText();
+            else
+                normalText();
+        }
+
+        private void userText()
+        {
+            this.username_textView.setTypeface(normalTypeface, Typeface.BOLD_ITALIC);
+            this.time_textView.setTypeface(normalTypeface, Typeface.BOLD_ITALIC);
+        }
+
+        private void normalText()
+        {
+            this.username_textView.setTypeface(normalTypeface);
+            this.time_textView.setTypeface(normalTypeface);
         }
     }
 
@@ -51,11 +75,13 @@ public class RecyclerView_Config
     {
         private User[] users;
         private String[] keys;
+        private String userID;
 
-        public UserAdapter(User[] users, String[] keys)
+        public UserAdapter(User[] users, String[] keys, String userID)
         {
             this.users = users;
             this.keys = keys;
+            this.userID = userID;
         }
 
         @NonNull
@@ -68,7 +94,7 @@ public class RecyclerView_Config
         @Override
         public void onBindViewHolder(@NonNull UserItemView holder, int position)
         {
-            holder.bind(this.users[position], this.keys[position], position+1);
+            holder.bind(this.users[position], this.keys[position], position+1, this.userID);
         }
 
         @Override
