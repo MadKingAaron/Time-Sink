@@ -108,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Button settingsButton;
     SwitchButton settingsSwitchButton;
 
+    ImageView achievementIcon;
+    Button achievementButton;
+
     FirebaseAuth firebaseAuth;
 
     private void create()
@@ -122,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.settingsIcon = (ImageView) findViewById(R.id.settingsIcon);
         this.settingsButton = (Button) findViewById(R.id.settingsButton);
+        this.achievementIcon=(ImageView) findViewById(R.id.achievementIcon);
+        this.achievementButton=(Button) findViewById(R.id.achievementButton);
 
         this.firebaseAuth = FirebaseAuth.getInstance();
 
@@ -287,6 +292,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.INVISIBLE);
             this.settingsButton.setEnabled(false);
+            this.achievementIcon.setVisibility(View.INVISIBLE);
+            this.achievementButton.setEnabled(false);
         }
 
         if(!this.timerStopped && this.timerStarted && !this.timer.isRunning())
@@ -298,6 +305,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             this.settingsIcon.setVisibility(View.VISIBLE);
             this.settingsButton.setEnabled(true);
+            this.achievementIcon.setVisibility(View.VISIBLE);
+            this.achievementButton.setEnabled(true);
         }
 
 
